@@ -16,10 +16,13 @@ if (!$eventID) {
 try {
     $conn->begin_transaction();
 
-    $feedback = $conn->prepare('DELETE FROM feedback WHERE EventID = ?');
-    $feedback->bind_param('i', $eventID);
-    $feedback->execute();
-    $feedback->close();
+    $dependentTables = ['feedback', 'organiser', 'payment', 'ticket', 'venue'];
+    foreach ($dependentTables as $table) {
+        $dependent = $conn->prepare("DELETE FROM `$table` WHERE EventID = ?");
+        $dependent->bind_param('i', $eventID);
+        $dependent->execute();
+        $dependent->close();
+    }
 
     $event = $conn->prepare('DELETE FROM Event WHERE EventID = ?');
     $event->bind_param('i', $eventID);
