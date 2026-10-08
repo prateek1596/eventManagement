@@ -1,4 +1,6 @@
 <?php
+header('Location: events.php?view=calendar');
+exit();
 include '../db.php';
 include '../auth.php';
 session_start();

@@ -4,6 +4,25 @@ include '../auth.php';
 session_start();
 requireLogin('../login.php');
 $csrf = csrfToken();
+$view = ($_GET['view'] ?? 'list') === 'calendar' ? 'calendar' : 'list';
+$calendarMonth = $_GET['month'] ?? date('Y-m');
+$calendarDate = DateTime::createFromFormat('!Y-m', $calendarMonth);
+if (!$calendarDate || $calendarDate->format('Y-m') !== $calendarMonth) {
+    $calendarDate = new DateTime('first day of this month');
+}
+$calendarStart = $calendarDate->format('Y-m-01');
+$calendarEnd = (clone $calendarDate)->modify('first day of next month')->format('Y-m-01');
+$calendarEvents = [];
+$calendarStmt = $conn->prepare('SELECT EventID, Name, Date_OF_Booking, Time, Venue FROM Event WHERE Date_OF_Booking >= ? AND Date_OF_Booking < ? ORDER BY Date_OF_Booking, Time');
+$calendarStmt->bind_param('ss', $calendarStart, $calendarEnd);
+$calendarStmt->execute();
+$calendarResult = $calendarStmt->get_result();
+while ($calendarEvent = $calendarResult->fetch_assoc()) {
+    $calendarEvents[$calendarEvent['Date_OF_Booking']][] = $calendarEvent;
+}
+$calendarStmt->close();
+$calendarDays = (int) $calendarDate->format('t');
+$calendarFirstDay = (int) $calendarDate->format('w');
 $search = trim($_GET['search'] ?? '');
 $statusFilter = $_GET['status'] ?? '';
 $dateFilter = $_GET['date'] ?? '';
@@ -50,7 +69,6 @@ $offset = ($page - 1) * $perPage;
         <!-- Left Links -->
         <ul class="navbar-nav me-auto mb-2 mb-lg-0 ms-3">
             <li class="nav-item"><a class="nav-link" href="events.php">Events</a></li>
-            <li class="nav-item"><a class="nav-link" href="calendar.php">Calendar</a></li>
             <li class="nav-item"><a class="nav-link" href="venue.php">Venues</a></li>
             <li class="nav-item"><a class="nav-link" href="attendee.php">Attendees</a></li>
             <li class="nav-item"><a class="nav-link" href="organiser.php">Organisers</a></li>
@@ -102,6 +120,25 @@ $offset = ($page - 1) * $perPage;
         <div class="col-md-3"><input type="date" name="date" class="form-control" value="<?= htmlspecialchars($dateFilter, ENT_QUOTES, 'UTF-8') ?>"></div>
         <div class="col-md-1"><button class="btn btn-primary w-100" type="submit">Go</button></div>
     </form>
+
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <div class="btn-group" role="group" aria-label="Event view">
+            <a class="btn <?= $view === 'list' ? 'btn-primary' : 'btn-outline-primary' ?>" href="?<?= http_build_query(['search' => $search, 'status' => $statusFilter, 'date' => $dateFilter, 'view' => 'list']) ?>">List</a>
+            <a class="btn <?= $view === 'calendar' ? 'btn-primary' : 'btn-outline-primary' ?>" href="?<?= http_build_query(['search' => $search, 'status' => $statusFilter, 'date' => $dateFilter, 'view' => 'calendar', 'month' => $calendarDate->format('Y-m')]) ?>">Calendar</a>
+        </div>
+        <?php if ($view === 'calendar'): ?><a class="btn btn-outline-secondary" href="exportCalendar.php?month=<?= $calendarDate->format('Y-m') ?>">Export .ics</a><?php endif; ?>
+    </div>
+
+    <?php if ($view === 'calendar'): ?>
+        <div class="d-flex justify-content-between align-items-center mb-3">
+            <h4 class="mb-0"><?= htmlspecialchars($calendarDate->format('F Y'), ENT_QUOTES, 'UTF-8') ?></h4>
+            <div class="btn-group"><a class="btn btn-secondary btn-sm" href="?view=calendar&month=<?= (clone $calendarDate)->modify('-1 month')->format('Y-m') ?>">Previous</a><a class="btn btn-secondary btn-sm" href="?view=calendar&month=<?= date('Y-m') ?>">Today</a><a class="btn btn-secondary btn-sm" href="?view=calendar&month=<?= (clone $calendarDate)->modify('+1 month')->format('Y-m') ?>">Next</a></div>
+        </div>
+        <div class="table-responsive"><table class="table table-bordered text-center align-middle"><thead><tr><?php foreach (['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'] as $weekday): ?><th><?= $weekday ?></th><?php endforeach; ?></tr></thead><tbody><tr>
+        <?php for ($blank = 0; $blank < $calendarFirstDay; $blank++): ?><td style="height:110px"></td><?php endfor; ?>
+        <?php for ($day = 1; $day <= $calendarDays; $day++): $calendarDay = $calendarDate->format('Y-m-') . str_pad((string) $day, 2, '0', STR_PAD_LEFT); ?><td class="text-start" style="height:110px; min-width:120px"><strong><?= $day ?></strong><?php foreach ($calendarEvents[$calendarDay] ?? [] as $event): ?><a class="d-block small mt-2 p-1 bg-success-subtle text-dark rounded text-decoration-none" href="?search=<?= urlencode($event['Name']) ?>"><?= htmlspecialchars($event['Name'], ENT_QUOTES, 'UTF-8') ?></a><?php endforeach; ?></td><?php if (($calendarFirstDay + $day) % 7 === 0 && $day !== $calendarDays): ?></tr><tr><?php endif; ?><?php endfor; ?>
+        </tr></tbody></table></div>
+    <?php else: ?>
 
     <table class="table table-bordered table-striped">
         <thead class="table-dark">
@@ -165,6 +202,7 @@ $offset = ($page - 1) * $perPage;
                 <li class="page-item <?= $pageNumber === $page ? 'active' : '' ?>"><a class="page-link" href="?<?= http_build_query(['search' => $search, 'status' => $statusFilter, 'date' => $dateFilter, 'page' => $pageNumber]) ?>"><?= $pageNumber ?></a></li>
             <?php endfor; ?>
         </ul></nav>
+    <?php endif; ?>
     <?php endif; ?>
 </div>
 </body>
