@@ -50,6 +50,7 @@ $offset = ($page - 1) * $perPage;
         <!-- Left Links -->
         <ul class="navbar-nav me-auto mb-2 mb-lg-0 ms-3">
             <li class="nav-item"><a class="nav-link" href="events.php">Events</a></li>
+            <li class="nav-item"><a class="nav-link" href="calendar.php">Calendar</a></li>
             <li class="nav-item"><a class="nav-link" href="venue.php">Venues</a></li>
             <li class="nav-item"><a class="nav-link" href="attendee.php">Attendees</a></li>
             <li class="nav-item"><a class="nav-link" href="organiser.php">Organisers</a></li>
