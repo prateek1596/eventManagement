@@ -16,6 +16,11 @@ if (!$eventID) {
 try {
     $conn->begin_transaction();
 
+    $promotions = $conn->prepare('DELETE FROM promotion WHERE VenueID IN (SELECT VenueID FROM venue WHERE EventID = ?)');
+    $promotions->bind_param('i', $eventID);
+    $promotions->execute();
+    $promotions->close();
+
     $dependentTables = ['feedback', 'organiser', 'payment', 'ticket', 'venue'];
     foreach ($dependentTables as $table) {
         $dependent = $conn->prepare("DELETE FROM `$table` WHERE EventID = ?");
