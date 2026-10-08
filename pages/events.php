@@ -1,11 +1,9 @@
 <?php
 include '../db.php';
+include '../auth.php';
 session_start();
-
-if (!isset($_SESSION['username'])) {
-    header("Location: ../login.php");
-    exit();
-}
+requireLogin('../login.php');
+$csrf = csrfToken();
 ?>
 
 <!DOCTYPE html>
@@ -113,7 +111,11 @@ if (!isset($_SESSION['username'])) {
                         <td>₹ {$row['Budget']}</td>
                         <td>
                             <a href='editEvent.php?id={$row['EventID']}' class='btn btn-sm btn-primary'>Edit</a>
-                            <a href='deleteEvent.php?id={$row['EventID']}' class='btn btn-sm btn-danger' onclick='return confirm(\"Are you sure?\")'>Delete</a>
+                            <form method='POST' action='deleteEvent.php' class='d-inline' onsubmit='return confirm(\"Are you sure?\")'>
+                                <input type='hidden' name='event_id' value='{$row['EventID']}'>
+                                <input type='hidden' name='csrf_token' value='{$csrf}'>
+                                <button type='submit' class='btn btn-sm btn-danger'>Delete</button>
+                            </form>
                         </td>
                     </tr>";
             }

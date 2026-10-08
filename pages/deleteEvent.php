@@ -1,13 +1,16 @@
 <?php
 include '../db.php';
+include '../auth.php';
 session_start();
-
-if (!isset($_SESSION['username'])) {
-    header("Location: ../login.php");
+requireLogin('../login.php');
+requireRole(['admin', 'organizer'], 'events.php');
+if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+    header('Location: events.php?delete_error=method');
     exit();
 }
+verifyCsrf();
 
-$eventID = filter_input(INPUT_GET, 'id', FILTER_VALIDATE_INT);
+$eventID = filter_input(INPUT_POST, 'event_id', FILTER_VALIDATE_INT);
 if (!$eventID) {
     header('Location: events.php?delete_error=invalid');
     exit();

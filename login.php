@@ -1,12 +1,13 @@
 <?php
 session_start();
 include ('db.php');
+include ('auth.php');
 
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $username = trim($_POST['username'] ?? '');
     $password = $_POST['password'] ?? '';
 
-    $stmt = $conn->prepare('SELECT username, password FROM users WHERE username = ? LIMIT 1');
+    $stmt = $conn->prepare('SELECT username, password, role FROM users WHERE username = ? LIMIT 1');
     if (!$stmt) {
         $error = 'Login is not configured yet. Create the users table using database.sql.';
     } else {
@@ -19,6 +20,8 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             if (password_verify($password, $row['password'])) {
                 session_regenerate_id(true);
                 $_SESSION['username'] = $row['username'];
+                $_SESSION['role'] = $row['role'];
+                csrfToken();
                 header('Location: dashboard.php');
                 exit();
             }

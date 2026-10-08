@@ -1,15 +1,14 @@
 <?php
 include '../db.php';
+include '../auth.php';
 session_start();
-
-if (!isset($_SESSION['username'])) {
-    header("Location: ../login.php");
-    exit();
-}
+requireLogin('../login.php');
+requireRole(['admin', 'organizer'], 'events.php');
 
 $eventID = $_GET['id'];
 
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
+    verifyCsrf();
     $name = $_POST['name'];
     $bookingDate = $_POST['booking_date'];
     $time = $_POST['time'];
@@ -54,6 +53,7 @@ $event = $result->fetch_assoc();
     <?php if (isset($error)) echo "<div class='alert alert-danger'>$error</div>"; ?>
 
     <form method="POST">
+        <input type="hidden" name="csrf_token" value="<?= htmlspecialchars(csrfToken(), ENT_QUOTES, 'UTF-8') ?>">
         <div class="row g-3">
             <div class="col-md-4">
                 <label>Customer Name</label>
