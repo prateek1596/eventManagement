@@ -16,6 +16,10 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $status = $_POST['status'];  // Status
     $budget = $_POST['budget'];
 
+    if (!is_numeric($budget) || $budget < 0 || $budget > 9999999999999.99) {
+        $error = 'Budget must be a number between 0 and 9,999,999,999,999.99.';
+    }
+
     // Convert status string to 1 (Planned) or 0 (Cancelled)
     $statusValue = ($status == 'Planned') ? 1 : 0;
 
@@ -23,7 +27,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $sql = "INSERT INTO Event (`EventID`, `Name`, `Date_OF_Booking`, `Time`, `Venue`, `Contact_info`, `Status`, `Budget`) 
             VALUES ('$eventID', '$name', '$bookingDate', '$time', '$venue', '$contactInfo', '$statusValue', '$budget')";
 
-    if ($conn->query($sql)) {
+    if (!isset($error) && $conn->query($sql)) {
         $success = "Event added successfully!";
     } else {
         $error = "Error: " . $conn->error;
@@ -81,7 +85,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             </div>
             <div class="col-md-3">
                 <label>Budget</label>
-                <input type="number" name="budget" class="form-control" step="0.01" required>
+                <input type="number" name="budget" class="form-control" step="0.01" min="0" max="9999999999999.99" required>
             </div>
         </div>
 
