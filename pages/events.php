@@ -61,6 +61,11 @@ if (!isset($_SESSION['username'])) {
     <?php if (isset($_GET['success']) && $_GET['success'] == 1): ?>
         <div class="alert alert-success">Event updated successfully!</div>
     <?php endif; ?>
+    <?php if (isset($_GET['deleted'])): ?>
+        <div class="alert alert-success">Event and its feedback were deleted successfully.</div>
+    <?php elseif (isset($_GET['delete_error'])): ?>
+        <div class="alert alert-danger">This event could not be deleted because another record still depends on it.</div>
+    <?php endif; ?>
 
     <a href="addEvent.php" class="btn btn-success mb-3">➕ Add New Event</a>
 
