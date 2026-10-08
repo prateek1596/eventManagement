@@ -112,6 +112,7 @@ $offset = ($page - 1) * $perPage;
     <div class="d-flex flex-wrap gap-2 mb-3">
         <a href="addEvent.php" class="btn btn-success">➕ Add New Event</a>
         <a href="exportEvents.php?search=<?= urlencode($search) ?>" class="btn btn-outline-secondary">Export CSV</a>
+        <a href="checkin.php" class="btn btn-outline-primary">Guest Check-in</a>
     </div>
 
     <form method="GET" class="row g-2 mb-4">
@@ -184,6 +185,7 @@ $offset = ($page - 1) * $perPage;
                         <td>₹ {$row['Budget']}</td>
                         <td>
                             <a href='editEvent.php?id={$row['EventID']}' class='btn btn-sm btn-primary'>Edit</a>
+                            <a href='publicEvent.php?event={$row['EventID']}' class='btn btn-sm btn-outline-success'>RSVP link</a>
                             <form method='POST' action='deleteEvent.php' class='d-inline' onsubmit='return confirm(\"Are you sure?\")'>
                                 <input type='hidden' name='event_id' value='{$row['EventID']}'>
                                 <input type='hidden' name='csrf_token' value='{$csrf}'>
