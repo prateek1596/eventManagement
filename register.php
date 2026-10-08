@@ -7,29 +7,38 @@ $error_message = "";
 
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     // Get the form input values
-    $username = $_POST['username'];
-    $password = $_POST['password'];
-    $email = $_POST['email'];
-    $name = $_POST['name'];
-    $phone = $_POST['phone'];
-    $role = $_POST['role'];
+    $username = trim($_POST['username'] ?? '');
+    $password = $_POST['password'] ?? '';
+    $email = trim($_POST['email'] ?? '');
+    $name = trim($_POST['name'] ?? '');
+    $phone = trim($_POST['phone'] ?? '');
+    $role = $_POST['role'] ?? '';
 
     // Check if username or email already exists in the database
-    $query = "SELECT * FROM users WHERE username = '$username' OR email = '$email'";
-    $result = mysqli_query($conn, $query);
-
-    if (mysqli_num_rows($result) > 0) {
-        $error_message = "Username or email is already taken.";
+    $stmt = $conn->prepare('SELECT id FROM users WHERE username = ? OR email = ? LIMIT 1');
+    if ($stmt) {
+        $stmt->bind_param('ss', $username, $email);
+        $stmt->execute();
+        $result = $stmt->get_result();
     } else {
+        $result = false;
+        $error_message = 'Registration is not configured yet. Create the users table using database.sql.';
+    }
+
+    if ($result && $result->num_rows > 0) {
+        $error_message = "Username or email is already taken.";
+    } elseif ($result) {
         $hashed_password = password_hash($password, PASSWORD_DEFAULT);
 
-        // Insert the new user into the database (add phone and role)
-        $query = "INSERT INTO users (username, password, email, name, phone, role) 
-                  VALUES ('$username', '$hashed_password', '$email', '$name', '$phone', '$role')";
-        if (mysqli_query($conn, $query)) {
-            header('Location: login.php');
+        $insert = $conn->prepare('INSERT INTO users (username, password, email, name, phone, role) VALUES (?, ?, ?, ?, ?, ?)');
+        if ($insert) {
+            $insert->bind_param('ssssss', $username, $hashed_password, $email, $name, $phone, $role);
+        }
+        if ($insert && $insert->execute()) {
+            header('Location: login.php?registered=1');
+            exit();
         } else {
-            $error_message = "Error: " . mysqli_error($conn);
+            $error_message = 'Unable to create the account. Check that the users table matches database.sql.';
         }
     }
 }
@@ -48,7 +57,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
 <div class="container">
     <h2 class="mt-5">Register</h2>
-    <?php if ($error_message) { echo "<div class='alert alert-danger'>$error_message</div>"; } ?>
+    <?php if ($error_message) { echo '<div class="alert alert-danger">' . htmlspecialchars($error_message, ENT_QUOTES, 'UTF-8') . '</div>'; } ?>
     <form action="register.php" method="POST">
         <div class="form-group">
             <label for="name">Full Name</label>

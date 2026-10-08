@@ -3,23 +3,30 @@ session_start();
 include ('db.php');
 
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
-    $username = $_POST['username'];
-    $password = $_POST['password'];
+    $username = trim($_POST['username'] ?? '');
+    $password = $_POST['password'] ?? '';
 
-    $sql = "SELECT * FROM Users WHERE username = '$username'";
-    $result = $conn->query($sql);
-
-    if ($result && $result->num_rows == 1) {
-        $row = $result->fetch_assoc();
-        if (password_verify($password, $row['password'])) {
-            $_SESSION['username'] = $username;
-            header("Location: dashboard.php");
-            exit();
-        } else {
-            $error = "Invalid username or password";
-        }
+    $stmt = $conn->prepare('SELECT username, password FROM users WHERE username = ? LIMIT 1');
+    if (!$stmt) {
+        $error = 'Login is not configured yet. Create the users table using database.sql.';
     } else {
-        $error = "Invalid username or password";
+        $stmt->bind_param('s', $username);
+        $stmt->execute();
+        $result = $stmt->get_result();
+
+        if ($result->num_rows == 1) {
+            $row = $result->fetch_assoc();
+            if (password_verify($password, $row['password'])) {
+                session_regenerate_id(true);
+                $_SESSION['username'] = $row['username'];
+                header('Location: dashboard.php');
+                exit();
+            }
+        } else {
+            $error = 'Invalid username or password';
+        }
+        $error = 'Invalid username or password';
+        $stmt->close();
     }
 }
 ?>
@@ -28,7 +35,8 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Login</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sign in | EventSpace</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css" rel="stylesheet">
     <link href="glassstyle.css" rel="stylesheet">
 </head>
@@ -37,19 +45,21 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         <div class="circle blue"></div>
         <div class="circle orange"></div>
         <div class="glass-card">
-            <h2>Login Here</h2>
-            <?php if (isset($error)) echo "<div class='alert'>$error</div>"; ?>
+            <p class="eyebrow">EVENTSPACE / OPERATIONS</p>
+            <h1>Welcome back.</h1>
+            <p class="intro">Sign in to keep your events moving.</p>
+            <?php if (isset($error)) echo '<div class="alert" role="alert">' . htmlspecialchars($error, ENT_QUOTES, 'UTF-8') . '</div>'; ?>
             <form method="POST">
                 <label for="username">Username</label>
-                <input type="text" name="username" placeholder="Username" required>
+                <input type="text" id="username" name="username" placeholder="Your username" autocomplete="username" required>
 
                 <label for="password">Password</label>
-                <input type="password" name="password" placeholder="Password" required>
+                <input type="password" id="password" name="password" placeholder="Your password" autocomplete="current-password" required>
 
-                <button type="submit" class="login-btn">Log In</button>
+                <button type="submit" class="login-btn">Sign in <span aria-hidden="true">→</span></button>
 
                 <div class="register-text">
-                    <p>Don't have an account? <a href="register.php">Register</a></p>
+                    <p>New to EventSpace? <a href="register.php">Create an account</a></p>
                 </div>
             </form>
         </div>
