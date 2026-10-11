@@ -170,15 +170,13 @@ $offset = ($page - 1) * $perPage;
                         <td>{$row['Contact_info']}</td>
                         <td>";
 
-                // Status badge colors
-                if ($row['Status'] == 'Planned') {
-                    echo "<span class='badge bg-warning text-dark'>Planned</span>";
-                } elseif ($row['Status'] == 'Confirmed') {
-                    echo "<span class='badge bg-success'>Confirmed</span>";
-                } elseif ($row['Status'] == 'Cancelled') {
-                    echo "<span class='badge bg-danger'>Cancelled</span>";
+                // Status is stored as a boolean in the existing Event schema.
+                if ((int) $row['Status'] === 1) {
+                    echo "<span class='badge bg-success'>1</span>";
+                } elseif ((int) $row['Status'] === 0) {
+                    echo "<span class='badge bg-secondary'>0</span>";
                 } else {
-                    echo $row['Status'];
+                    echo htmlspecialchars((string) $row['Status'], ENT_QUOTES, 'UTF-8');
                 }
 
                 echo "</td>
