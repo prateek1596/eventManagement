@@ -7,30 +7,37 @@ requireRole(['admin', 'organizer'], 'events.php');
 
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     verifyCsrf();
-    $eventID = $_POST['event_id'];
-    $name = $_POST['name'];
-    $bookingDate = $_POST['booking_date'];  // Booking Date
-    $time = $_POST['time'];
-    $venue = $_POST['venue'];
-    $contactInfo = $_POST['contact_info'];
-    $status = $_POST['status'];  // Status
-    $budget = $_POST['budget'];
+    $eventID = filter_input(INPUT_POST, 'event_id', FILTER_VALIDATE_INT);
+    $name = trim($_POST['name'] ?? '');
+    $bookingDate = $_POST['booking_date'] ?? '';
+    $time = $_POST['time'] ?? '';
+    $venue = trim($_POST['venue'] ?? '');
+    $contactInfo = trim($_POST['contact_info'] ?? '');
+    $status = $_POST['status'] ?? '';
+    $budget = $_POST['budget'] ?? '';
 
-    if (!is_numeric($budget) || $budget < 0 || $budget > 9999999999999.99) {
+    if (!$eventID || $name === '' || $venue === '' || $contactInfo === '' || !in_array($status, ['0', '1'], true)) {
+        $error = 'Complete all event fields with valid values.';
+    } elseif (!is_numeric($budget) || $budget < 0 || $budget > 9999999999999.99) {
         $error = 'Budget must be a number between 0 and 9,999,999,999,999.99.';
     }
 
-    // Convert status string to 1 (Planned) or 0 (Cancelled)
-    $statusValue = ($status == 'Planned') ? 1 : 0;
-
-    // Modified SQL query with backticks around column names with spaces
-    $sql = "INSERT INTO Event (`EventID`, `Name`, `Date_OF_Booking`, `Time`, `Venue`, `Contact_info`, `Status`, `Budget`) 
-            VALUES ('$eventID', '$name', '$bookingDate', '$time', '$venue', '$contactInfo', '$statusValue', '$budget')";
-
-    if (!isset($error) && $conn->query($sql)) {
-        $success = "Event added successfully!";
-    } else {
-        $error = "Error: " . $conn->error;
+    if (!isset($error)) {
+        $stmt = $conn->prepare('INSERT INTO Event (`EventID`, `Name`, `Date_OF_Booking`, `Time`, `Venue`, `Contact_info`, `Status`, `Budget`) VALUES (?, ?, ?, ?, ?, ?, ?, ?)');
+        if ($stmt) {
+            $statusValue = (int) $status;
+            $budgetValue = (float) $budget;
+            $stmt->bind_param('isssssid', $eventID, $name, $bookingDate, $time, $venue, $contactInfo, $statusValue, $budgetValue);
+        }
+        if (isset($stmt) && $stmt->execute()) {
+            $success = "Event added successfully!";
+            $stmt->close();
+        } else {
+            $error = "Unable to add the event. Check that the event ID is unique.";
+            if (isset($stmt)) {
+                $stmt->close();
+            }
+        }
     }
 }
 ?>
@@ -46,8 +53,8 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 <div class="container mt-4">
     <h3 class="mb-4">Add New Event</h3>
 
-    <?php if (isset($success)) echo "<div class='alert alert-success'>$success</div>"; ?>
-    <?php if (isset($error)) echo "<div class='alert alert-danger'>$error</div>"; ?>
+    <?php if (isset($success)) echo "<div class='alert alert-success'>" . htmlspecialchars($success, ENT_QUOTES, 'UTF-8') . "</div>"; ?>
+    <?php if (isset($error)) echo "<div class='alert alert-danger'>" . htmlspecialchars($error, ENT_QUOTES, 'UTF-8') . "</div>"; ?>
 
     <form method="POST">
         <input type="hidden" name="csrf_token" value="<?= htmlspecialchars(csrfToken(), ENT_QUOTES, 'UTF-8') ?>">
