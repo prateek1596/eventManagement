@@ -184,6 +184,7 @@ $offset = ($page - 1) * $perPage;
                         <td>
                             <a href='editEvent.php?id={$row['EventID']}' class='btn btn-sm btn-primary'>Edit</a>
                             <a href='tasks.php?event={$row['EventID']}' class='btn btn-sm btn-outline-primary'>Tasks</a>
+                            <a href='rsvps.php?event={$row['EventID']}' class='btn btn-sm btn-outline-success'>RSVPs</a>
                             <a href='publicEvent.php?event={$row['EventID']}' class='btn btn-sm btn-outline-success'>RSVP link</a>
                             <form method='POST' action='deleteEvent.php' class='d-inline' onsubmit='return confirm(\"Are you sure?\")'>
                                 <input type='hidden' name='event_id' value='{$row['EventID']}'>
