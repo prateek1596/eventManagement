@@ -12,7 +12,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $email = trim($_POST['email'] ?? '');
     $name = trim($_POST['name'] ?? '');
     $phone = trim($_POST['phone'] ?? '');
-    $role = $_POST['role'] ?? '';
+    $role = $_POST['role'] ?? 'Staff';
 
     // Check if username or email already exists in the database
     $stmt = $conn->prepare('SELECT id FROM users WHERE username = ? OR email = ? LIMIT 1');
@@ -79,7 +79,6 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             <label for="role">Select Role</label>
             <select class="form-control" id="role" name="role" required>
                 <option value="">-- Select Role --</option>
-                <option value="Admin">Admin</option>
                 <option value="Organizer">Organizer</option>
                 <option value="Staff">Staff</option>
             </select>

@@ -11,6 +11,13 @@ foreach (['Event' => 'events', 'Venue' => 'venues', 'Attendee' => 'attendees', '
     $countResult = $conn->query("SELECT COUNT(*) AS total FROM `$table`");
     $dashboardCounts[$label] = $countResult ? (int) $countResult->fetch_assoc()['total'] : 0;
 }
+$notificationCount = 0;
+$notificationStmt = $conn->prepare('SELECT COUNT(*) AS total FROM event_notifications WHERE Username = ? AND Is_Read = 0');
+if ($notificationStmt) {
+    $notificationStmt->bind_param('s', $_SESSION['username']);
+    $notificationStmt->execute();
+    $notificationCount = (int) $notificationStmt->get_result()->fetch_assoc()['total'];
+}
 ?>
 
 <!DOCTYPE html>
@@ -37,6 +44,9 @@ foreach (['Event' => 'events', 'Venue' => 'venues', 'Attendee' => 'attendees', '
             <li class="nav-item"><a class="nav-link" href="pages/venue.php">Venues</a></li>
             <li class="nav-item"><a class="nav-link" href="pages/attendee.php">Attendees</a></li>
             <li class="nav-item"><a class="nav-link" href="pages/organiser.php">Organisers</a></li>
+            <li class="nav-item"><a class="nav-link" href="pages/catalog.php">Discover</a></li>
+            <li class="nav-item"><a class="nav-link" href="pages/notifications.php">Notifications<?php if ($notificationCount > 0): ?> <span class="badge bg-danger"><?= $notificationCount ?></span><?php endif; ?></a></li>
+            <?php if (in_array(strtolower($_SESSION['role'] ?? ''), ['admin', 'organizer'], true)): ?><li class="nav-item"><a class="nav-link" href="pages/analytics.php">Analytics</a></li><?php endif; ?>
         </ul>
 
         <!-- Search -->
