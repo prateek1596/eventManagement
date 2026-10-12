@@ -57,3 +57,7 @@ CREATE TABLE IF NOT EXISTS event_reminders (
     UNIQUE KEY uq_user_event_reminder (Username, EventID),
     CONSTRAINT fk_reminder_event FOREIGN KEY (EventID) REFERENCES Event(EventID) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+ALTER TABLE event_rsvps ADD COLUMN IF NOT EXISTS Ticket_ID INT UNSIGNED NULL;
+ALTER TABLE event_rsvps ADD KEY IF NOT EXISTS idx_rsvp_ticket (Ticket_ID);
+ALTER TABLE event_rsvps ADD CONSTRAINT fk_rsvp_ticket FOREIGN KEY (Ticket_ID) REFERENCES event_tickets(Ticket_ID) ON DELETE SET NULL;
