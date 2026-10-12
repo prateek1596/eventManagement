@@ -40,8 +40,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $event) {
     }
     if ($error === '') {
         $token = bin2hex(random_bytes(32));
-        $insert = $conn->prepare("INSERT INTO event_rsvps (EventID, Guest_Name, Guest_Email, Guest_Phone, RSVP_Token, Ticket_ID) VALUES (?, ?, ?, ?, ?, ?)");
-        $insert->bind_param('issssi', $eventID, $name, $email, $phone, $token, $ticketID);
+        if ($ticketID) {
+            $insert = $conn->prepare("INSERT INTO event_rsvps (EventID, Guest_Name, Guest_Email, Guest_Phone, RSVP_Token, Ticket_ID) VALUES (?, ?, ?, ?, ?, ?)");
+            $insert->bind_param('issssi', $eventID, $name, $email, $phone, $token, $ticketID);
+        } else {
+            $insert = $conn->prepare("INSERT INTO event_rsvps (EventID, Guest_Name, Guest_Email, Guest_Phone, RSVP_Token) VALUES (?, ?, ?, ?, ?)");
+            $insert->bind_param('issss', $eventID, $name, $email, $phone, $token);
+        }
         if ($insert->execute()) {
             $message = 'Your RSVP has been recorded. Save this check-in code: ' . $token;
         } else {
