@@ -55,14 +55,15 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 </head>
 <body>
 
-<div class="container">
+<main class="container auth-shell">
+    <p class="text-uppercase text-muted mb-2" style="font-size:.72rem;font-weight:800;letter-spacing:.14em;color:#635bff !important;">EventSpace / Team access</p>
     <h2 class="mt-5">Register</h2>
     <?php if ($error_message) { echo '<div class="alert alert-danger">' . htmlspecialchars($error_message, ENT_QUOTES, 'UTF-8') . '</div>'; } ?>
     <form action="register.php" method="POST">
         <div class="form-group">
             <label for="name">Full Name</label>
             <input type="text" class="form-control" id="name" name="name" required>
-        </div>
+        </main>
         <div class="form-group">
             <label for="username">Username</label>
             <input type="text" class="form-control" id="username" name="username" required>
