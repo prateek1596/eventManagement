@@ -1,5 +1,10 @@
 USE pateek;
 
+ALTER TABLE Event
+    ADD COLUMN IF NOT EXISTS Capacity INT UNSIGNED NULL,
+    ADD COLUMN IF NOT EXISTS Recurrence_Rule ENUM('None','Daily','Weekly','Monthly') NOT NULL DEFAULT 'None',
+    ADD COLUMN IF NOT EXISTS Recurrence_End_Date DATE NULL;
+
 CREATE TABLE IF NOT EXISTS event_rsvps (
     RSVP_ID INT UNSIGNED NOT NULL AUTO_INCREMENT,
     EventID INT NOT NULL,
@@ -59,5 +64,18 @@ CREATE TABLE IF NOT EXISTS event_reminders (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 ALTER TABLE event_rsvps ADD COLUMN IF NOT EXISTS Ticket_ID INT UNSIGNED NULL;
+ALTER TABLE event_rsvps ADD COLUMN IF NOT EXISTS Payment_Status ENUM('Not Required','Pending','Paid','Refunded') NOT NULL DEFAULT 'Not Required';
 ALTER TABLE event_rsvps ADD KEY IF NOT EXISTS idx_rsvp_ticket (Ticket_ID);
 ALTER TABLE event_rsvps ADD CONSTRAINT fk_rsvp_ticket FOREIGN KEY (Ticket_ID) REFERENCES event_tickets(Ticket_ID) ON DELETE SET NULL;
+
+CREATE TABLE IF NOT EXISTS event_occurrences (
+    Occurrence_ID INT UNSIGNED NOT NULL AUTO_INCREMENT,
+    EventID INT NOT NULL,
+    Occurrence_Date DATE NOT NULL,
+    Occurrence_Time TIME NOT NULL,
+    Status ENUM('Scheduled','Cancelled') NOT NULL DEFAULT 'Scheduled',
+    Created_At TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    PRIMARY KEY (Occurrence_ID),
+    UNIQUE KEY uq_event_occurrence (EventID, Occurrence_Date, Occurrence_Time),
+    CONSTRAINT fk_occurrence_event FOREIGN KEY (EventID) REFERENCES Event(EventID) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;

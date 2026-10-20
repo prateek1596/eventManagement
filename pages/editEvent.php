@@ -20,19 +20,26 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $contactInfo = trim($_POST['contact_info'] ?? '');
     $status = $_POST['status'] ?? '';
     $budget = $_POST['budget'] ?? '';
+    $capacity = $_POST['capacity'] ?? '';
+    $recurrenceRule = $_POST['recurrence_rule'] ?? 'None';
+    $recurrenceEndDate = $_POST['recurrence_end_date'] ?? '';
     $error = null;
 
-    if ($name === '' || $venue === '' || $contactInfo === '' || !in_array($status, ['0', '1'], true)) {
+    if ($name === '' || $venue === '' || $contactInfo === '' || !in_array($status, ['0', '1'], true) || !in_array($recurrenceRule, ['None', 'Daily', 'Weekly', 'Monthly'], true)) {
         $error = 'Complete all event fields with valid values.';
     } elseif (!is_numeric($budget) || $budget < 0 || $budget > 9999999999999.99) {
         $error = 'Budget must be a number between 0 and 9,999,999,999,999.99.';
+    } elseif (($capacity !== '' && filter_var($capacity, FILTER_VALIDATE_INT) === false) || ($capacity !== '' && (int) $capacity < 1)) {
+        $error = 'Capacity must be a positive whole number or left blank for unlimited attendance.';
+    } elseif ($recurrenceRule !== 'None' && ($recurrenceEndDate === '' || $recurrenceEndDate < $bookingDate)) {
+        $error = 'Choose an end date for recurring events.';
     }
 
     if ($error === null) {
-        $stmt = $conn->prepare('UPDATE Event SET `Name` = ?, `Date_OF_Booking` = ?, `Time` = ?, `Venue` = ?, `Contact_info` = ?, `Status` = ?, `Budget` = ? WHERE `EventID` = ?');
+        $stmt = $conn->prepare('UPDATE Event SET `Name` = ?, `Date_OF_Booking` = ?, `Time` = ?, `Venue` = ?, `Contact_info` = ?, `Status` = ?, `Budget` = ?, `Capacity` = NULLIF(?, \'\'), `Recurrence_Rule` = ?, `Recurrence_End_Date` = NULLIF(?, \'\') WHERE `EventID` = ?');
         $statusValue = (int) $status;
         $budgetValue = (float) $budget;
-        $stmt->bind_param('sssssidi', $name, $bookingDate, $time, $venue, $contactInfo, $statusValue, $budgetValue, $eventID);
+        $stmt->bind_param('sssssidsssi', $name, $bookingDate, $time, $venue, $contactInfo, $statusValue, $budgetValue, $capacity, $recurrenceRule, $recurrenceEndDate, $eventID);
     }
 
     if ($error === null && $stmt->execute()) {
@@ -102,6 +109,22 @@ if (!$event) {
             <div class="col-md-3">
                 <label>Budget</label>
                 <input type="number" name="budget" value="<?php echo htmlspecialchars($event['Budget'], ENT_QUOTES, 'UTF-8'); ?>" class="form-control" step="0.01" min="0" max="9999999999999.99" required>
+            </div>
+            <div class="col-md-3">
+                <label>Capacity <small class="text-muted">(optional)</small></label>
+                <input type="number" name="capacity" value="<?php echo htmlspecialchars((string) ($event['Capacity'] ?? ''), ENT_QUOTES, 'UTF-8'); ?>" class="form-control" min="1" placeholder="Unlimited">
+            </div>
+            <div class="col-md-3">
+                <label>Repeats</label>
+                <select name="recurrence_rule" class="form-select">
+                    <?php foreach (['None' => 'Does not repeat', 'Daily' => 'Daily', 'Weekly' => 'Weekly', 'Monthly' => 'Monthly'] as $rule => $label): ?>
+                        <option value="<?= $rule ?>" <?= ($event['Recurrence_Rule'] ?? 'None') === $rule ? 'selected' : '' ?>><?= $label ?></option>
+                    <?php endforeach; ?>
+                </select>
+            </div>
+            <div class="col-md-3">
+                <label>Repeat until <small class="text-muted">(if repeating)</small></label>
+                <input type="date" name="recurrence_end_date" value="<?php echo htmlspecialchars((string) ($event['Recurrence_End_Date'] ?? ''), ENT_QUOTES, 'UTF-8'); ?>" class="form-control">
             </div>
         </div>
 

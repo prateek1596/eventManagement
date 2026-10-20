@@ -18,6 +18,25 @@ if ($notificationStmt) {
     $notificationStmt->execute();
     $notificationCount = (int) $notificationStmt->get_result()->fetch_assoc()['total'];
 }
+$confirmedRsvps = 0;
+$waitlistedRsvps = 0;
+$rsvpStats = $conn->query("SELECT RSVP_Status, COUNT(*) AS total FROM event_rsvps GROUP BY RSVP_Status");
+if ($rsvpStats) {
+    while ($rsvpStat = $rsvpStats->fetch_assoc()) {
+        if ($rsvpStat['RSVP_Status'] === 'Confirmed') {
+            $confirmedRsvps = (int) $rsvpStat['total'];
+        } elseif ($rsvpStat['RSVP_Status'] === 'Waitlisted') {
+            $waitlistedRsvps = (int) $rsvpStat['total'];
+        }
+    }
+}
+$upcomingEvents = [];
+$upcomingResult = $conn->query("SELECT EventID, Name, Date_OF_Booking, Time, Venue, Capacity FROM Event WHERE Date_OF_Booking >= CURDATE() ORDER BY Date_OF_Booking, Time LIMIT 5");
+if ($upcomingResult) {
+    while ($upcomingEvent = $upcomingResult->fetch_assoc()) {
+        $upcomingEvents[] = $upcomingEvent;
+    }
+}
 ?>
 
 <!DOCTYPE html>
@@ -45,6 +64,8 @@ if ($notificationStmt) {
             <li class="nav-item"><a class="nav-link" href="pages/attendee.php">Attendees</a></li>
             <li class="nav-item"><a class="nav-link" href="pages/organiser.php">Organisers</a></li>
             <li class="nav-item"><a class="nav-link" href="pages/catalog.php">Discover</a></li>
+            <li class="nav-item"><a class="nav-link" href="pages/checkin.php">Check-in</a></li>
+            <li class="nav-item"><a class="nav-link" href="pages/tickets.php">Tickets</a></li>
             <li class="nav-item"><a class="nav-link" href="pages/notifications.php">Notifications<?php if ($notificationCount > 0): ?> <span class="badge bg-danger"><?= $notificationCount ?></span><?php endif; ?></a></li>
             <?php if (in_array(strtolower($_SESSION['role'] ?? ''), ['admin', 'organizer'], true)): ?><li class="nav-item"><a class="nav-link" href="pages/analytics.php">Analytics</a></li><?php endif; ?>
         </ul>
@@ -93,6 +114,12 @@ if ($notificationStmt) {
                             <strong style="font-size: 2rem; line-height: 1;"><?= $dashboardCounts[$metric[0]] ?></strong>
                             <span style="color: #087f73; font-size: 1.4rem;">↗</span>
                         </div>
+
+                        <div class="row row-cols-1 row-cols-md-3 g-3 mb-4">
+                            <div class="col"><div class="card h-100 p-3"><p class="text-muted mb-2" style="font: 700 .75rem 'Trebuchet MS', sans-serif; text-transform: uppercase; letter-spacing: .08em;">Confirmed RSVPs</p><strong style="font-size: 2rem; line-height: 1;"><?= $confirmedRsvps ?></strong><span class="text-muted mt-2">Ready-to-attend guests</span></div></div>
+                            <div class="col"><div class="card h-100 p-3"><p class="text-muted mb-2" style="font: 700 .75rem 'Trebuchet MS', sans-serif; text-transform: uppercase; letter-spacing: .08em;">Waitlisted</p><strong style="font-size: 2rem; line-height: 1;"><?= $waitlistedRsvps ?></strong><span class="text-muted mt-2">Guests needing capacity</span></div></div>
+                            <div class="col"><div class="card h-100 p-3"><p class="text-muted mb-2" style="font: 700 .75rem 'Trebuchet MS', sans-serif; text-transform: uppercase; letter-spacing: .08em;">Notifications</p><strong style="font-size: 2rem; line-height: 1;"><?= $notificationCount ?></strong><span class="text-muted mt-2">Unread updates</span></div></div>
+                        </div>
                     </div>
                 </a>
             </div>
@@ -126,6 +153,22 @@ if ($notificationStmt) {
             </div>
         </div>
     </div>
+
+    <section class="mt-5">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+            <div><p class="text-uppercase text-muted mb-1" style="font: 700 .72rem 'Trebuchet MS', sans-serif; letter-spacing: .12em;">What is next</p><h3 class="mb-0" style="font-size: 1.45rem;">Upcoming events</h3></div>
+            <a href="pages/events.php" class="btn btn-outline-secondary btn-sm">View all</a>
+        </div>
+        <div class="list-group">
+            <?php if (!$upcomingEvents): ?><div class="card p-4 text-muted">No upcoming events yet. Create one to start planning.</div><?php endif; ?>
+            <?php foreach ($upcomingEvents as $upcoming): ?>
+                <a href="pages/rsvps.php?event=<?= (int) $upcoming['EventID'] ?>" class="list-group-item list-group-item-action d-flex justify-content-between align-items-center py-3">
+                    <span><strong><?= htmlspecialchars($upcoming['Name'], ENT_QUOTES, 'UTF-8') ?></strong><small class="d-block text-muted"><?= htmlspecialchars($upcoming['Date_OF_Booking'] . ' · ' . $upcoming['Time'] . ' · ' . $upcoming['Venue'], ENT_QUOTES, 'UTF-8') ?></small></span>
+                    <span class="badge text-bg-light"><?= $upcoming['Capacity'] === null ? 'Unlimited' : (int) $upcoming['Capacity'] . ' seats' ?></span>
+                </a>
+            <?php endforeach; ?>
+        </div>
+    </section>
 </main>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>

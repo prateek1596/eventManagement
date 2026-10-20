@@ -32,14 +32,29 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     verifyCsrf();
     $rsvpID = filter_input(INPUT_POST, 'rsvp_id', FILTER_VALIDATE_INT);
     $newStatus = $_POST['rsvp_status'] ?? '';
+    $paymentStatus = $_POST['payment_status'] ?? '';
 
-    if (!$rsvpID || !in_array($newStatus, $statuses, true)) {
+    if (!$rsvpID || !in_array($newStatus, $statuses, true) || ($paymentStatus !== '' && !in_array($paymentStatus, ['Not Required', 'Pending', 'Paid', 'Refunded'], true))) {
         $error = 'Choose a valid RSVP status.';
     } else {
         $update = $conn->prepare('UPDATE event_rsvps SET RSVP_Status = ? WHERE RSVP_ID = ? AND EventID = ?');
-        $update->bind_param('sii', $newStatus, $rsvpID, $eventID);
+        if ($paymentStatus !== '') {
+            $update = $conn->prepare('UPDATE event_rsvps SET RSVP_Status = ?, Payment_Status = ? WHERE RSVP_ID = ? AND EventID = ?');
+            $update->bind_param('ssii', $newStatus, $paymentStatus, $rsvpID, $eventID);
+        } else {
+            $update->bind_param('sii', $newStatus, $rsvpID, $eventID);
+        }
         if ($update->execute() && $update->affected_rows >= 0) {
             $message = 'RSVP status updated.';
+            if ($newStatus === 'Declined') {
+                $promote = $conn->prepare("UPDATE event_rsvps SET RSVP_Status = 'Confirmed' WHERE EventID = ? AND RSVP_Status = 'Waitlisted' ORDER BY Created_At ASC LIMIT 1");
+                $promote->bind_param('i', $eventID);
+                $promote->execute();
+                if ($promote->affected_rows > 0) {
+                    $message .= ' The oldest waitlisted guest was promoted to confirmed.';
+                }
+                $promote->close();
+            }
         } else {
             $error = 'Unable to update the RSVP status.';
         }
@@ -48,14 +63,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 }
 
 if (isset($_GET['export']) && $_GET['export'] === 'csv') {
-    $exportStmt = $conn->prepare('SELECT Guest_Name, Guest_Email, Guest_Phone, RSVP_Status, Checked_In_At, Created_At FROM event_rsvps WHERE EventID = ? ORDER BY Created_At DESC');
+    $exportStmt = $conn->prepare('SELECT Guest_Name, Guest_Email, Guest_Phone, RSVP_Status, Payment_Status, Checked_In_At, Created_At FROM event_rsvps WHERE EventID = ? ORDER BY Created_At DESC');
     $exportStmt->bind_param('i', $eventID);
     $exportStmt->execute();
     $exportResult = $exportStmt->get_result();
     header('Content-Type: text/csv; charset=utf-8');
     header('Content-Disposition: attachment; filename="event-' . $eventID . '-rsvps.csv"');
     $output = fopen('php://output', 'w');
-    fputcsv($output, ['Guest name', 'Email', 'Phone', 'Status', 'Checked in at', 'Submitted at']);
+    fputcsv($output, ['Guest name', 'Email', 'Phone', 'Status', 'Payment', 'Checked in at', 'Submitted at']);
     while ($row = $exportResult->fetch_assoc()) {
         fputcsv($output, $row);
     }
@@ -80,7 +95,7 @@ if ($search !== '') {
     $params[] = $term;
     $params[] = $term;
 }
-$rsvpStmt = $conn->prepare('SELECT RSVP_ID, Guest_Name, Guest_Email, Guest_Phone, RSVP_Status, Checked_In_At, Created_At FROM event_rsvps WHERE ' . implode(' AND ', $where) . ' ORDER BY Created_At DESC');
+$rsvpStmt = $conn->prepare('SELECT RSVP_ID, Guest_Name, Guest_Email, Guest_Phone, RSVP_Status, Payment_Status, Checked_In_At, Created_At FROM event_rsvps WHERE ' . implode(' AND ', $where) . ' ORDER BY Created_At DESC');
 $bindValues = [$types];
 foreach ($params as $index => $value) {
     $bindValues[] = $value;
@@ -139,14 +154,24 @@ $rsvps = $rsvpStmt->get_result();
 
     <div class="table-responsive">
         <table class="table table-bordered">
-            <thead><tr><th>Guest</th><th>Contact</th><th>Status</th><th>Check-in</th><th>Submitted</th><th>Update</th></tr></thead>
+            <thead><tr><th>Guest</th><th>Contact</th><th>Status</th><th>Payment</th><th>Check-in</th><th>Submitted</th><th>Update</th></tr></thead>
             <tbody>
-            <?php if ($rsvps->num_rows === 0): ?><tr><td colspan="6" class="text-center text-muted py-4">No RSVPs match this filter.</td></tr><?php endif; ?>
+            <?php if ($rsvps->num_rows === 0): ?><tr>            <td colspan="7" class="text-center text-muted py-4">No RSVPs match this filter.</td></tr><?php endif; ?>
             <?php while ($rsvp = $rsvps->fetch_assoc()): ?>
                 <tr>
                     <td><strong><?= htmlspecialchars($rsvp['Guest_Name'], ENT_QUOTES, 'UTF-8') ?></strong></td>
                     <td><?= htmlspecialchars($rsvp['Guest_Email'], ENT_QUOTES, 'UTF-8') ?><br><small><?= htmlspecialchars($rsvp['Guest_Phone'] ?: 'No phone', ENT_QUOTES, 'UTF-8') ?></small></td>
                     <td><?= htmlspecialchars($rsvp['RSVP_Status'], ENT_QUOTES, 'UTF-8') ?></td>
+                    <td>
+                        <form method="POST" class="d-flex gap-2">
+                            <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($csrf, ENT_QUOTES, 'UTF-8') ?>">
+                            <input type="hidden" name="event_id" value="<?= (int) $eventID ?>">
+                            <input type="hidden" name="rsvp_id" value="<?= (int) $rsvp['RSVP_ID'] ?>">
+                            <input type="hidden" name="rsvp_status" value="<?= htmlspecialchars($rsvp['RSVP_Status'], ENT_QUOTES, 'UTF-8') ?>">
+                            <select name="payment_status" class="form-select form-select-sm"><option <?= $rsvp['Payment_Status'] === 'Not Required' ? 'selected' : '' ?>>Not Required</option><option <?= $rsvp['Payment_Status'] === 'Pending' ? 'selected' : '' ?>>Pending</option><option <?= $rsvp['Payment_Status'] === 'Paid' ? 'selected' : '' ?>>Paid</option><option <?= $rsvp['Payment_Status'] === 'Refunded' ? 'selected' : '' ?>>Refunded</option></select>
+                            <button class="btn btn-sm btn-outline-primary">Save</button>
+                        </form>
+                    </td>
                     <td><?= $rsvp['Checked_In_At'] ? htmlspecialchars($rsvp['Checked_In_At'], ENT_QUOTES, 'UTF-8') : 'Not checked in' ?></td>
                     <td><?= htmlspecialchars($rsvp['Created_At'], ENT_QUOTES, 'UTF-8') ?></td>
                     <td>
