@@ -5,7 +5,8 @@ $user = "root";
 $password = "Prateek@1596";
 $database = getenv('EVENT_DB_NAME') ?: "pateek";
 
-$conn = @new mysqli($host, $user, $password, $database, 3306);
+$port = (int) (getenv('EVENT_DB_PORT') ?: 3307);
+$conn = @new mysqli($host, $user, $password, $database, $port);
 if ($conn->connect_error) {
     die($connectionError . ' Current database: ' . htmlspecialchars($database, ENT_QUOTES, 'UTF-8'));
 }
