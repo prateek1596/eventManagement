@@ -28,4 +28,14 @@
 .status-badge { display: inline-block; padding: .3rem .55rem; border-radius: 999px; font-size: .7rem; font-weight: 700; }
 .status-success { color: var(--app-success); background: color-mix(in srgb, var(--app-success) 12%, transparent); }
 .status-muted { color: var(--app-muted); background: var(--app-surface-muted); }
+.event-management-card .management-cover { position: relative; height: 185px; overflow: hidden; background: linear-gradient(135deg, var(--app-accent), #a16cf4); }
+.management-cover img { width: 100%; height: 100%; object-fit: cover; transition: transform .4s ease; }
+.event-management-card:hover .management-cover img { transform: scale(1.06); }
+.event-category, .almost-full { position: absolute; top: 12px; padding: .35rem .6rem; border-radius: 999px; color: #fff; background: rgba(20, 20, 32, .62); backdrop-filter: blur(6px); font-size: .68rem; font-weight: 700; }
+.event-category { left: 12px; }
+.almost-full { right: 12px; color: #fff0e7; background: rgba(193, 83, 48, .85); }
+.event-progress { height: 6px; background: var(--app-surface-muted); }
+.event-progress .progress-bar { background: var(--app-accent); border-radius: 999px; }
+.calendar-cell { min-width: 110px; height: 105px; vertical-align: top !important; }
+.calendar-event { display: block; margin-top: .45rem; padding: .3rem .4rem; overflow: hidden; color: var(--app-accent); background: var(--app-accent-soft); border-radius: 6px; font-size: .72rem; text-overflow: ellipsis; white-space: nowrap; }
 @keyframes app-shimmer { 0% { background-position: 100% 0; } 100% { background-position: -100% 0; } }
