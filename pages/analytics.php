@@ -23,7 +23,7 @@ $popular = $conn->query("SELECT e.Name, COUNT(r.RSVP_ID) rsvps FROM Event e LEFT
 $statusBreakdown = $conn->query("SELECT RSVP_Status, COUNT(*) AS total FROM event_rsvps GROUP BY RSVP_Status ORDER BY total DESC");
 ?>
 <!DOCTYPE html>
-<html lang="en"><head><meta charset="UTF-8"><title>Analytics | EventSpace</title><link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet"><link href="style.css" rel="stylesheet"></head>
+<html lang="en"><head><meta charset="UTF-8"><title>Analytics | EventSpace</title><link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet"><link href="../assets/css/legacy.css" rel="stylesheet"></head>
 <body><main class="container py-4">
     <div class="d-flex justify-content-between align-items-center mb-4"><h1>Event analytics</h1><a href="../dashboard.php" class="btn btn-outline-secondary">Dashboard</a></div>
     <div class="row g-3 mb-4"><?php foreach ($stats as $label => $value): ?><div class="col-6 col-lg-3"><div class="card p-3 h-100"><small class="text-muted"><?= htmlspecialchars($label, ENT_QUOTES, 'UTF-8') ?></small><strong class="display-6"><?= $value ?></strong></div></div><?php endforeach; ?></div>

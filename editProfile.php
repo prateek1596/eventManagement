@@ -38,7 +38,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <title>Edit Profile</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="assets/css/dark-theme.css" rel="stylesheet">
-    <link href="ui.css" rel="stylesheet">
+    <link href="assets/css/legacy.css" rel="stylesheet">
 </head>
 <body>
 <div class="container mt-5 text-light">

@@ -46,7 +46,7 @@ $tickets->execute();
 $ticketRows = $tickets->get_result();
 ?>
 <!DOCTYPE html>
-<html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Tickets | EventSpace</title><link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet"><link href="style.css" rel="stylesheet"></head>
+<html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Tickets | EventSpace</title><link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet"><link href="../assets/css/legacy.css" rel="stylesheet"></head>
 <body><main class="container mt-4">
     <div class="d-flex justify-content-between align-items-center mb-4"><div><p class="text-uppercase text-muted mb-1">Ticket desk</p><h1><?= htmlspecialchars($event['Name'], ENT_QUOTES, 'UTF-8') ?></h1></div><a href="events.php" class="btn btn-outline-secondary">Back to events</a></div>
     <?php if ($message): ?><div class="alert alert-success"><?= htmlspecialchars($message, ENT_QUOTES, 'UTF-8') ?></div><?php endif; ?><?php if ($error): ?><div class="alert alert-danger"><?= htmlspecialchars($error, ENT_QUOTES, 'UTF-8') ?></div><?php endif; ?>

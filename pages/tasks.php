@@ -101,7 +101,7 @@ $csrf = csrfToken();
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Tasks | EventSpace</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link href="style.css" rel="stylesheet">
+    <link href="../assets/css/legacy.css" rel="stylesheet">
 </head>
 <body>
 <nav class="navbar navbar-expand-lg navbar-dark bg-dark px-4 py-2">

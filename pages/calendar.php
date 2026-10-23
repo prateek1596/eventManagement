@@ -35,7 +35,7 @@ $firstWeekday = (int) $monthDate->format('w');
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Calendar | EventSpace</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link href="style.css" rel="stylesheet">
+    <link href="../assets/css/legacy.css" rel="stylesheet">
     <style>
         .calendar-grid { display:grid; grid-template-columns:repeat(7, minmax(100px, 1fr)); border:1px solid var(--line); }
         .calendar-heading, .calendar-day { min-height:112px; padding:10px; border-right:1px solid var(--line); border-bottom:1px solid var(--line); }

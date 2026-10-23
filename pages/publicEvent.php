@@ -78,7 +78,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $event) {
     <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1">
     <title>RSVP | EventSpace</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link href="style.css" rel="stylesheet">
+    <link href="../assets/css/legacy.css" rel="stylesheet">
 </head>
 <body>
 <main class="container mt-5" style="max-width:900px">

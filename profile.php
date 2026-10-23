@@ -24,7 +24,7 @@ require __DIR__ . '/includes/header.php';
 </section>
 <section class="profile-studio app-card">
     <div class="profile-studio-top">
-        <img src="<?= e(eventspace_url('PP.jpeg')) ?>" alt="Profile picture for <?= e($name) ?>" class="profile-studio-image" width="112" height="112">
+        <img src="<?= e(eventspace_url('assets/img/profile/avatar.jpeg')) ?>" alt="Profile picture for <?= e($name) ?>" class="profile-studio-image" width="112" height="112">
         <div><p class="app-eyebrow mb-1">Team member</p><h2 class="mb-1"><?= e($name) ?></h2><p class="app-muted mb-0"><?= e($user['email'] ?? '') ?></p></div>
     </div>
     <div class="profile-details">
