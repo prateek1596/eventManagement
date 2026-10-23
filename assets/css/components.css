@@ -38,4 +38,12 @@
 .event-progress .progress-bar { background: var(--app-accent); border-radius: 999px; }
 .calendar-cell { min-width: 110px; height: 105px; vertical-align: top !important; }
 .calendar-event { display: block; margin-top: .45rem; padding: .3rem .4rem; overflow: hidden; color: var(--app-accent); background: var(--app-accent-soft); border-radius: 6px; font-size: .72rem; text-overflow: ellipsis; white-space: nowrap; }
+.venue-cover { position: relative; height: 175px; overflow: hidden; background: linear-gradient(135deg, var(--app-accent), #a16cf4); }
+.venue-cover img { width: 100%; height: 100%; object-fit: cover; transition: transform .4s ease; }
+.app-card-hover:hover .venue-cover img { transform: scale(1.06); }
+.venue-status { position: absolute; top: 12px; right: 12px; padding: .35rem .6rem; border-radius: 999px; font-size: .68rem; font-weight: 700; backdrop-filter: blur(6px); }
+.venue-status.status-success { color: #d9fff3; background: rgba(16, 132, 101, .84); }
+.venue-status.status-muted { color: #f0f0f5; background: rgba(40, 40, 52, .7); }
+.venue-capacity { color: var(--app-accent); font-size: .75rem; font-weight: 700; }
+.rating-stars { color: #efa94f; letter-spacing: .06em; }
 @keyframes app-shimmer { 0% { background-position: 100% 0; } 100% { background-position: -100% 0; } }
