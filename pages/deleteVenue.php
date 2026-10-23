@@ -1,18 +1,22 @@
 <?php
-include '../db.php';
-session_start();
+require_once __DIR__ . '/../db.php';
+require_once __DIR__ . '/../auth.php';
+start_eventspace_session();
+requireLogin('../login.php');
 
-if (!isset($_SESSION['username'])) {
-    header("Location: ../login.php");
+if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+    header('Location: venue.php?error=method');
     exit();
 }
-
-if (isset($_GET['id'])) {
-    $id = $_GET['id'];
-    $conn->query("DELETE FROM Venue WHERE VenueID = '$id'");
-    header("Location: venue.php?success=1");
+verifyCsrf();
+$id = filter_input(INPUT_POST, 'id', FILTER_VALIDATE_INT);
+if (!$id) {
+    header('Location: venue.php?error=invalid');
     exit();
-} else {
-    echo "Error: No ID provided!";
 }
-?>
+$stmt = $conn->prepare('DELETE FROM Venue WHERE VenueID = ?');
+$stmt->bind_param('i', $id);
+$stmt->execute();
+$stmt->close();
+header('Location: venue.php?success=1');
+exit();

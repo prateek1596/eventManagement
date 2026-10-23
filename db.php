@@ -1,14 +1,19 @@
 <?php
-$connectionError = 'Database connection is unavailable. Check the MySQL service and db.php settings.';
-$host = "localhost";
-$user = "root";
-$password = "Prateek@1596";
-$database = getenv('EVENT_DB_NAME') ?: "pateek";
+declare(strict_types=1);
 
-$port = (int) (getenv('EVENT_DB_PORT') ?: 3307);
-$conn = @new mysqli($host, $user, $password, $database, $port);
-if ($conn->connect_error) {
-    die($connectionError . ' Current database: ' . htmlspecialchars($database, ENT_QUOTES, 'UTF-8'));
+require_once __DIR__ . '/config/app.php';
+
+$host = (string) (getenv('DB_HOST') ?: '127.0.0.1');
+$user = (string) (getenv('DB_USER') ?: 'root');
+$password = (string) (getenv('DB_PASSWORD') ?: '');
+$database = (string) (getenv('DB_NAME') ?: 'pateek');
+$port = (int) (getenv('DB_PORT') ?: 3307);
+
+mysqli_report(MYSQLI_REPORT_OFF);
+$conn = new mysqli($host, $user, $password, $database, $port);
+if ($conn->connect_errno) {
+    error_log('EventSpace mysqli connection failed: ' . $conn->connect_error);
+    http_response_code(503);
+    exit('The database is temporarily unavailable.');
 }
 $conn->set_charset('utf8mb4');
-?>

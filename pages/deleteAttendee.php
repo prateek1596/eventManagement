@@ -1,25 +1,22 @@
 <?php
-include '../db.php';
-session_start();
+require_once __DIR__ . '/../db.php';
+require_once __DIR__ . '/../auth.php';
+start_eventspace_session();
+requireLogin('../login.php');
 
-if (!isset($_SESSION['username'])) {
-    header("Location: ../login.php");
+if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+    header('Location: attendee.php?error=method');
     exit();
 }
-
-if (isset($_GET['id'])) {
-    $attendee_id = $_GET['id'];
-
-    // Deleting the attendee
-    $query = "DELETE FROM Attendee WHERE AttendeeID = $attendee_id";
-    if ($conn->query($query)) {
-        header("Location: attendee.php?success=true");
-        exit();
-    } else {
-        echo "Error: " . $conn->error;
-    }
-} else {
-    header("Location: attendee.php");
+verifyCsrf();
+$id = filter_input(INPUT_POST, 'id', FILTER_VALIDATE_INT);
+if (!$id) {
+    header('Location: attendee.php?error=invalid');
     exit();
 }
-?>
+$stmt = $conn->prepare('DELETE FROM Attendee WHERE AttendeeID = ?');
+$stmt->bind_param('i', $id);
+$stmt->execute();
+$stmt->close();
+header('Location: attendee.php?success=1');
+exit();
