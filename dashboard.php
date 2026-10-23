@@ -112,18 +112,18 @@ if ($upcomingResult) {
                         <p class="text-muted mb-2" style="font: 700 .75rem 'Trebuchet MS', sans-serif; text-transform: uppercase; letter-spacing: .08em;"><?= $metric[1] ?></p>
                         <div class="d-flex justify-content-between align-items-end">
                             <strong style="font-size: 2rem; line-height: 1;"><?= $dashboardCounts[$metric[0]] ?></strong>
-                            <span style="color: #087f73; font-size: 1.4rem;">↗</span>
-                        </div>
-
-                        <div class="row row-cols-1 row-cols-md-3 g-3 mb-4">
-                            <div class="col"><div class="card h-100 p-3"><p class="text-muted mb-2" style="font: 700 .75rem 'Trebuchet MS', sans-serif; text-transform: uppercase; letter-spacing: .08em;">Confirmed RSVPs</p><strong style="font-size: 2rem; line-height: 1;"><?= $confirmedRsvps ?></strong><span class="text-muted mt-2">Ready-to-attend guests</span></div></div>
-                            <div class="col"><div class="card h-100 p-3"><p class="text-muted mb-2" style="font: 700 .75rem 'Trebuchet MS', sans-serif; text-transform: uppercase; letter-spacing: .08em;">Waitlisted</p><strong style="font-size: 2rem; line-height: 1;"><?= $waitlistedRsvps ?></strong><span class="text-muted mt-2">Guests needing capacity</span></div></div>
-                            <div class="col"><div class="card h-100 p-3"><p class="text-muted mb-2" style="font: 700 .75rem 'Trebuchet MS', sans-serif; text-transform: uppercase; letter-spacing: .08em;">Notifications</p><strong style="font-size: 2rem; line-height: 1;"><?= $notificationCount ?></strong><span class="text-muted mt-2">Unread updates</span></div></div>
+                            <span style="color: #1f6f68; font-size: 1.4rem;">↗</span>
                         </div>
                     </div>
                 </a>
             </div>
         <?php endforeach; ?>
+    </div>
+
+    <div class="row row-cols-1 row-cols-md-3 g-3 mb-5">
+        <div class="col"><div class="card h-100 p-3"><p class="text-muted mb-2 text-uppercase small fw-bold">Confirmed RSVPs</p><strong style="font-size: 2rem; line-height: 1;"><?= $confirmedRsvps ?></strong><span class="text-muted mt-2">Ready-to-attend guests</span></div></div>
+        <div class="col"><div class="card h-100 p-3"><p class="text-muted mb-2 text-uppercase small fw-bold">Waitlisted</p><strong style="font-size: 2rem; line-height: 1;"><?= $waitlistedRsvps ?></strong><span class="text-muted mt-2">Guests needing capacity</span></div></div>
+        <div class="col"><div class="card h-100 p-3"><p class="text-muted mb-2 text-uppercase small fw-bold">Notifications</p><strong style="font-size: 2rem; line-height: 1;"><?= $notificationCount ?></strong><span class="text-muted mt-2">Unread updates</span></div></div>
     </div>
 
     <div class="row g-4">
