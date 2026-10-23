@@ -58,6 +58,9 @@ $events = $stmt->get_result();
         <div><p class="text-uppercase text-muted mb-1" style="letter-spacing:.14em;font-size:.72rem;font-weight:800">Discover</p><h1 class="mb-0">Upcoming events</h1></div>
         <a class="btn btn-outline-secondary" href="../dashboard.php">Dashboard</a>
     </div>
+    <form class="row g-2 mb-4" data-natural-search>
+        <div class="col-12"><label class="visually-hidden" for="natural-query">Describe the event you want</label><div class="input-group"><span class="input-group-text">✦</span><input id="natural-query" class="form-control" name="natural_query" placeholder="Try: music events in Goa under 3000"><button class="btn btn-primary" type="submit">Smart search</button></div><div data-search-status class="small text-muted mt-2" hidden aria-live="polite"></div></div>
+    </form>
     <form class="row g-2 mb-4">
         <div class="col-md-5"><input class="form-control" name="q" value="<?= htmlspecialchars($query, ENT_QUOTES, 'UTF-8') ?>" placeholder="Search event, venue, or contact"></div>
         <div class="col-md-3"><input class="form-control" type="date" name="from" value="<?= htmlspecialchars($from, ENT_QUOTES, 'UTF-8') ?>" aria-label="From date"></div>
@@ -119,5 +122,6 @@ $events = $stmt->get_result();
 <script src="../assets/theme.js"></script>
 <script src="../components/ai-planner.js"></script>
 <script src="../components/ai-chat.js"></script>
+<script src="../components/natural-search.js"></script>
 </body>
 </html>

@@ -73,5 +73,44 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $event) {
 }
 ?>
 <!DOCTYPE html>
-<html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>RSVP | EventSpace</title><link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet"><link href="style.css" rel="stylesheet"></head>
-<body><main class="container mt-5" style="max-width:700px"><p class="text-uppercase text-muted mb-2">Event invitation</p><?php if (!$event): ?><div class="alert alert-danger">This event link is not valid.</div><?php else: ?><h1><?= htmlspecialchars($event['Name'], ENT_QUOTES, 'UTF-8') ?></h1><p class="lead"><?= htmlspecialchars($event['Date_OF_Booking'] . ' at ' . $event['Time'] . ' · ' . $event['Venue'], ENT_QUOTES, 'UTF-8') ?></p><?php if ($event['Recurrence_Rule'] !== 'None'): ?><p class="text-muted">Repeats <?= htmlspecialchars(strtolower($event['Recurrence_Rule']), ENT_QUOTES, 'UTF-8') ?> until <?= htmlspecialchars($event['Recurrence_End_Date'], ENT_QUOTES, 'UTF-8') ?></p><?php endif; ?><?php if ($event['Capacity'] !== null): ?><p class="text-muted">Capacity: <?= (int) $event['Capacity'] ?> guests. Full events accept waitlist requests.</p><?php endif; ?><?php if ($message): ?><div class="alert alert-success"><?= htmlspecialchars($message, ENT_QUOTES, 'UTF-8') ?></div><div class="card text-center p-4"><p class="mb-2">Show this QR code at check-in</p><img class="mx-auto" style="width:180px;height:180px" alt="RSVP check-in QR code" src="https://api.qrserver.com/v1/create-qr-code/?size=180x180&data=<?= urlencode($token) ?>"><small class="text-muted mt-2"><?= htmlspecialchars($token, ENT_QUOTES, 'UTF-8') ?></small></div><?php else: ?><?php if ($error): ?><div class="alert alert-danger"><?= htmlspecialchars($error, ENT_QUOTES, 'UTF-8') ?></div><?php endif; ?><form method="POST"><input type="hidden" name="event_id" value="<?= (int) $eventID ?>"><div class="mb-3"><label class="form-label">Full name</label><input class="form-control" name="guest_name" required></div><div class="mb-3"><label class="form-label">Email</label><input class="form-control" type="email" name="guest_email" required></div><div class="mb-3"><label class="form-label">Phone</label><input class="form-control" name="guest_phone"></div><?php if ($tickets): ?><div class="mb-3"><label class="form-label">Ticket type</label><select class="form-select" name="ticket_id" required><option value="">Choose a ticket</option><?php foreach ($tickets as $ticket): ?><?php $available = $ticket['Capacity'] === null || (int) $ticket['Sold'] < (int) $ticket['Capacity']; ?><option value="<?= (int) $ticket['Ticket_ID'] ?>" <?= $available ? '' : 'disabled' ?>><?= htmlspecialchars($ticket['Ticket_Name'], ENT_QUOTES, 'UTF-8') ?> — <?= number_format((float) $ticket['Price'], 2) ?><?= $available ? '' : ' (sold out)' ?></option><?php endforeach; ?></select></div><?php endif; ?><button class="btn btn-primary">Confirm attendance</button></form><?php endif; ?><?php endif; ?></main></body></html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>RSVP | EventSpace</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="style.css" rel="stylesheet">
+</head>
+<body>
+<main class="container mt-5" style="max-width:900px">
+    <?php if (!$event): ?>
+        <div class="alert alert-danger">This event link is not valid.</div>
+    <?php else: ?>
+        <section class="event-gallery mb-4" aria-label="Event gallery">
+            <img src="https://images.unsplash.com/photo-1505236858219-8359eb29e329?auto=format&fit=crop&w=1200&q=85" alt="<?= htmlspecialchars($event['Name'], ENT_QUOTES, 'UTF-8') ?> atmosphere" onerror="this.style.display='none'">
+            <img src="https://images.unsplash.com/photo-1492684223066-81342ee5ff30?auto=format&fit=crop&w=800&q=80" alt="Guests enjoying an event" onerror="this.style.display='none'">
+            <img src="https://images.unsplash.com/photo-1511795409834-ef04bbd61622?auto=format&fit=crop&w=800&q=80" alt="Event table and decor" onerror="this.style.display='none'">
+        </section>
+        <p class="text-uppercase text-muted mb-2" style="letter-spacing:.14em;font-size:.72rem;font-weight:800">Event invitation</p>
+        <h1><?= htmlspecialchars($event['Name'], ENT_QUOTES, 'UTF-8') ?></h1>
+        <p class="lead"><?= htmlspecialchars($event['Date_OF_Booking'] . ' at ' . $event['Time'] . ' · ' . $event['Venue'], ENT_QUOTES, 'UTF-8') ?></p>
+        <?php if ($event['Recurrence_Rule'] !== 'None'): ?><p class="text-muted">Repeats <?= htmlspecialchars(strtolower($event['Recurrence_Rule']), ENT_QUOTES, 'UTF-8') ?> until <?= htmlspecialchars($event['Recurrence_End_Date'], ENT_QUOTES, 'UTF-8') ?></p><?php endif; ?>
+        <?php if ($event['Capacity'] !== null): ?><p class="text-muted">Capacity: <?= (int) $event['Capacity'] ?> guests. Full events accept waitlist requests.</p><?php endif; ?>
+        <?php if ($message): ?>
+            <div class="alert alert-success"><?= htmlspecialchars($message, ENT_QUOTES, 'UTF-8') ?></div>
+            <div class="card text-center p-4"><p class="mb-2">Show this QR code at check-in</p><img class="mx-auto" style="width:180px;height:180px" alt="RSVP check-in QR code" src="https://api.qrserver.com/v1/create-qr-code/?size=180x180&data=<?= urlencode($token) ?>"><small class="text-muted mt-2"><?= htmlspecialchars($token, ENT_QUOTES, 'UTF-8') ?></small></div>
+        <?php else: ?>
+            <?php if ($error): ?><div class="alert alert-danger"><?= htmlspecialchars($error, ENT_QUOTES, 'UTF-8') ?></div><?php endif; ?>
+            <form method="POST" class="card p-4">
+                <input type="hidden" name="event_id" value="<?= (int) $eventID ?>">
+                <div class="mb-3"><label class="form-label">Full name</label><input class="form-control" name="guest_name" required></div>
+                <div class="mb-3"><label class="form-label">Email</label><input class="form-control" type="email" name="guest_email" required></div>
+                <div class="mb-3"><label class="form-label">Phone</label><input class="form-control" name="guest_phone"></div>
+                <?php if ($tickets): ?><div class="mb-3"><label class="form-label">Ticket type</label><select class="form-select" name="ticket_id" required><option value="">Choose a ticket</option><?php foreach ($tickets as $ticket): ?><?php $available = $ticket['Capacity'] === null || (int) $ticket['Sold'] < (int) $ticket['Capacity']; ?><option value="<?= (int) $ticket['Ticket_ID'] ?>" <?= $available ? '' : 'disabled' ?>><?= htmlspecialchars($ticket['Ticket_Name'], ENT_QUOTES, 'UTF-8') ?> — <?= number_format((float) $ticket['Price'], 2) ?><?= $available ? '' : ' (sold out)' ?></option><?php endforeach; ?></select></div><?php endif; ?>
+                <button class="btn btn-primary">Confirm attendance</button>
+            </form>
+        <?php endif; ?>
+    <?php endif; ?>
+</main>
+<script src="../assets/theme.js"></script>
+</body>
+</html>

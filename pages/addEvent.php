@@ -126,6 +126,19 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             <a href="events.php" class="btn btn-secondary">Back to Events</a>
         </div>
     </form>
+
+    <section class="card p-4 mt-5">
+        <p class="text-uppercase text-muted mb-1" style="letter-spacing:.13em;font-size:.72rem;font-weight:800">Organizer toolkit</p>
+        <h2 class="h3">Write the event story with AI</h2>
+        <p class="text-muted">Create a polished description without changing the event form above.</p>
+        <form data-ai-description class="row g-2">
+            <div class="col-md-5"><label class="visually-hidden" for="ai-title">Event title</label><input id="ai-title" class="form-control" name="ai_title" placeholder="Event title" required></div>
+            <div class="col-md-5"><label class="visually-hidden" for="ai-keywords">Keywords</label><input id="ai-keywords" class="form-control" name="ai_keywords" placeholder="Keywords, mood, audience"></div>
+            <div class="col-md-2"><button class="btn btn-primary w-100" type="submit">Draft copy</button></div>
+            <div data-description-output class="alert alert-success ai-output mt-3 mb-0" hidden aria-live="polite"></div>
+        </form>
+    </section>
 </div>
+<script src="../components/ai-description.js"></script>
 </body>
 </html>
