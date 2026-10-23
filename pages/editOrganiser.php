@@ -43,21 +43,18 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 }
 ?>
 
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Edit Organiser</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link href="style.css" rel="stylesheet">
-</head>
-<body>
-<div class="container mt-4">
-    <h3>Edit Organiser</h3>
+<?php
+require_once __DIR__ . '/../includes/helpers.php';
+$pageTitle = 'Edit Organiser';
+require __DIR__ . '/../includes/header.php';
+?>
+<section class="form-page-heading"><div><p class="app-eyebrow">People management</p><h1>Edit organiser</h1><p class="app-muted mb-0">Keep the organiser profile accurate and useful.</p></div><a href="organiser.php" class="btn btn-light border"><i class="bi bi-arrow-left me-1"></i>Back to organisers</a></section>
+<section class="app-card form-studio form-studio-narrow">
+    <div class="form-studio-heading"><span class="form-studio-icon"><i class="bi bi-person-gear"></i></span><div><h2 class="h4 mb-1">Organiser details</h2><p class="app-muted mb-0">Update the information shown to your event team.</p></div></div>
 
     <?php if (isset($error)) echo "<div class='alert alert-danger'>$error</div>"; ?>
 
-    <form method="POST">
+    <form method="POST" class="eventspace-form">
         <div class="row g-3">
             <div class="col-md-6">
                 <label>Name</label>
@@ -80,11 +77,10 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             </div>
         </div>
 
-        <div class="mt-4">
-            <button type="submit" class="btn btn-primary">Update</button>
-            <a href="organiser.php" class="btn btn-secondary">Back</a>
+        <div class="form-actions">
+            <a href="organiser.php" class="btn btn-light border">Cancel</a>
+            <button type="submit" class="btn app-btn-primary"><i class="bi bi-check2 me-1"></i>Save changes</button>
         </div>
     </form>
-</div>
-</body>
-</html>
+</section>
+<?php require __DIR__ . '/../includes/footer.php'; ?>

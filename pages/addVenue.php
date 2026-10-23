@@ -27,55 +27,52 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 }
 ?>
 
-<!DOCTYPE html>
-<html>
-<head>
-    <title>Add Venue</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link href="style.css" rel="stylesheet">
-</head>
-<body>
-<div class="container mt-4">
-    <h3>Add Venue</h3>
+<?php
+require_once __DIR__ . '/../includes/helpers.php';
+$pageTitle = 'Add Venue';
+require __DIR__ . '/../includes/header.php';
+?>
+<section class="form-page-heading"><div><p class="app-eyebrow">Venue management</p><h1>Add a venue</h1><p class="app-muted mb-0">Create a polished home for your next experience.</p></div><a href="venue.php" class="btn btn-light border"><i class="bi bi-arrow-left me-1"></i>Back to venues</a></section>
+<section class="app-card form-studio">
+    <div class="form-studio-heading"><span class="form-studio-icon"><i class="bi bi-building"></i></span><div><h2 class="h4 mb-1">Venue details</h2><p class="app-muted mb-0">Add the essentials your team needs to make bookings.</p></div></div>
 
     <?php if (isset($error)) echo "<div class='alert alert-danger'>$error</div>"; ?>
 
-    <form method="POST">
+    <form method="POST" class="eventspace-form">
         <div class="row g-3">
             <div class="col-md-6">
-                <label>Name</label>
-                <input type="text" name="name" class="form-control" required>
+                <label for="venue-name">Name</label>
+                <input id="venue-name" type="text" name="name" class="form-control" placeholder="e.g. The Garden House" required>
             </div>
             <div class="col-md-6">
-                <label>Location</label>
-                <input type="text" name="location" class="form-control" required>
+                <label for="venue-location">Location</label>
+                <input id="venue-location" type="text" name="location" class="form-control" placeholder="City or full address" required>
             </div>
             <div class="col-md-4">
-                <label>Cost</label>
-                <input type="number" step="0.01" name="cost" class="form-control" required>
+                <label for="venue-cost">Cost</label>
+                <input id="venue-cost" type="number" step="0.01" name="cost" class="form-control" placeholder="0.00" required>
             </div>
             <div class="col-md-8">
-                <label>Facilities</label>
-                <input type="text" name="facilities" class="form-control" required>
+                <label for="venue-facilities">Facilities</label>
+                <input id="venue-facilities" type="text" name="facilities" class="form-control" placeholder="Parking, catering, sound system" required>
             </div>
             <div class="col-md-4">
-                <label>Availability</label>
+                <label for="venue-availability">Availability</label>
                 <select name="availability" class="form-select" required>
                     <option value="1">Available</option>
                     <option value="0">Not Available</option>
                 </select>
             </div>
             <div class="col-md-4">
-                <label>Event ID</label>
-                <input type="number" name="event_id" class="form-control">
+                <label for="venue-event">Event ID <span class="app-muted">(optional)</span></label>
+                <input id="venue-event" type="number" name="event_id" class="form-control" placeholder="Link to an event">
             </div>
         </div>
 
-        <div class="mt-4">
-            <button type="submit" class="btn btn-success">Add</button>
-            <a href="venue.php" class="btn btn-secondary">Back</a>
+        <div class="form-actions">
+            <a href="venue.php" class="btn btn-light border">Cancel</a>
+            <button type="submit" class="btn app-btn-primary"><i class="bi bi-check2 me-1"></i>Add venue</button>
         </div>
     </form>
-</div>
-</body>
-</html>
+</section>
+<?php require __DIR__ . '/../includes/footer.php'; ?>

@@ -63,20 +63,18 @@ if (!$event) {
 }
 ?>
 
-<!DOCTYPE html>
-<html>
-<head>
-    <title>Edit Event</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link href="style.css" rel="stylesheet">
-</head>
-<body>
-<div class="container mt-4">
-    <h3>Edit Event</h3>
+<?php
+require_once __DIR__ . '/../includes/helpers.php';
+$pageTitle = 'Edit Event';
+require __DIR__ . '/../includes/header.php';
+?>
+<section class="form-page-heading"><div><p class="app-eyebrow">Event management</p><h1>Edit event</h1><p class="app-muted mb-0">Refine the schedule and keep every detail aligned.</p></div><a href="events.php" class="btn btn-light border"><i class="bi bi-arrow-left me-1"></i>Back to events</a></section>
+<section class="app-card form-studio">
+    <div class="form-studio-heading"><span class="form-studio-icon"><i class="bi bi-calendar2-week"></i></span><div><h2 class="h4 mb-1">Event details</h2><p class="app-muted mb-0">Update the information used across your event workspace.</p></div></div>
     <?php if (isset($success)) echo "<div class='alert alert-success'>" . htmlspecialchars($success, ENT_QUOTES, 'UTF-8') . "</div>"; ?>
     <?php if (isset($error)) echo "<div class='alert alert-danger'>" . htmlspecialchars($error, ENT_QUOTES, 'UTF-8') . "</div>"; ?>
 
-    <form method="POST">
+    <form method="POST" class="eventspace-form">
         <input type="hidden" name="csrf_token" value="<?= htmlspecialchars(csrfToken(), ENT_QUOTES, 'UTF-8') ?>">
         <div class="row g-3">
             <div class="col-md-4">
@@ -128,11 +126,10 @@ if (!$event) {
             </div>
         </div>
 
-        <div class="mt-4">
-            <button class="btn btn-primary">Update</button>
-            <a href="events.php" class="btn btn-secondary">Back</a>
+        <div class="form-actions">
+            <a href="events.php" class="btn btn-light border">Cancel</a>
+            <button class="btn app-btn-primary"><i class="bi bi-check2 me-1"></i>Save changes</button>
         </div>
     </form>
-</div>
-</body>
-</html>
+</section>
+<?php require __DIR__ . '/../includes/footer.php'; ?>
