@@ -28,8 +28,8 @@ responsibility.
 
 1. Copy `.env.example` to `.env` and set the database credentials.
 2. Create the configured MySQL database.
-3. Apply `database/schema.sql`, followed by `database/upgrade.sql` when upgrading
-   an existing installation.
+3. Apply `database/schema.sql`, followed by `database/upgrade.sql` and
+   `database/modules.sql` when upgrading an existing installation.
 4. Serve the repository with Apache/PHP or another PHP-compatible local server.
 5. Set `APP_BASE_URL` to the path where the repository is served.
 
@@ -52,3 +52,9 @@ script before using this feature so the `Event.Image_Path` column exists.
 Images are validated as JPG, PNG, or WebP files up to 5 MB and stored in
 `assets/img/uploads/`. The directory is intended for user uploads and already
 contains a placeholder file so it remains in source control.
+
+The module migration provides the data foundation for roles, audit logs,
+vendors, expenses, communications, surveys, feedback, tickets, templates,
+seating, inventory, documents, calendar items, sponsors, speakers, sessions,
+risks, and reporting workflows. Existing tables in `database/upgrade.sql` are
+kept intact and are not duplicated.
