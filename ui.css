@@ -35,6 +35,7 @@ body {
     font-weight: 850;
     letter-spacing: -.04em;
 }
+.navbar .text-white { color: var(--ink) !important; }
 .navbar-brand::before { content: "●"; color: var(--primary); margin-right: 9px; font-size: .8em; }
 .navbar .nav-link {
     color: var(--muted) !important;
