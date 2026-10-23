@@ -25,7 +25,7 @@ require __DIR__ . '/../includes/header.php';
     <form class="row g-2 align-items-end" method="GET">
         <div class="col-md-8"><label class="form-label small app-muted" for="organiser-search">Search organisers</label><input id="organiser-search" class="form-control" type="search" name="search" value="<?= e($search) ?>" placeholder="Search by name or address"></div>
         <div class="col-md-2"><button class="btn app-btn-primary w-100" type="submit"><i class="bi bi-search me-1"></i>Search</button></div>
-        <div class="col-md-2"><a class="btn btn-light border w-100" href="?export=csv"><i class="bi bi-download me-1"></i>Export CSV</a></div>
+        <div class="col-md-2"><a class="btn btn-light border w-100" href="exportOrganisers.php"><i class="bi bi-download me-1"></i>Export CSV</a></div>
     </form>
 </section>
 <section class="app-card">
