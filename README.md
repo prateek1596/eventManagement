@@ -35,3 +35,15 @@ responsibility.
 
 The PHP pages use the existing URL layout, so moving assets and SQL files does
 not require changing bookmarks or web-server entry-point configuration.
+
+## AI and event photos
+
+The event form includes an AI brief extractor. Add `AI_API_KEY` and
+`AI_API_URL` in `.env` to enable it; without a key, the form remains usable and
+shows a clear setup message.
+
+Event photos can be uploaded from the create/edit event forms. Run the upgrade
+script before using this feature so the `Event.Image_Path` column exists.
+Images are validated as JPG, PNG, or WebP files up to 5 MB and stored in
+`assets/img/uploads/`. The directory is intended for user uploads and already
+contains a placeholder file so it remains in source control.

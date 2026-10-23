@@ -44,7 +44,7 @@ if ($rsvpStats) {
 }
 
 $upcomingEvents = [];
-$upcomingResult = $conn->query("SELECT EventID, Name, Date_OF_Booking, Time, Venue, Capacity FROM Event WHERE Date_OF_Booking >= CURDATE() ORDER BY Date_OF_Booking, Time LIMIT 5");
+$upcomingResult = $conn->query("SELECT EventID, Name, Date_OF_Booking, Time, Venue, Capacity, Image_Path FROM Event WHERE Date_OF_Booking >= CURDATE() ORDER BY Date_OF_Booking, Time LIMIT 5");
 if ($upcomingResult) {
     while ($row = $upcomingResult->fetch_assoc()) {
         $upcomingEvents[] = $row;
@@ -151,7 +151,7 @@ require __DIR__ . '/includes/header.php';
                 <div class="dashboard-event-list">
                 <?php foreach ($upcomingEvents as $event): ?>
                     <a class="dashboard-event" href="<?= e(eventspace_url('pages/publicEvent.php?event=' . (int) $event['EventID'])) ?>">
-                        <div class="event-thumb" role="img" aria-label="Event image placeholder"></div>
+                        <div class="event-thumb" role="img" aria-label="Event image"<?= !empty($event['Image_Path']) ? ' style="background-image:url(\'' . e(eventspace_url($event['Image_Path'])) . '\')"' : '' ?>></div>
                         <div class="flex-grow-1 min-width-0"><strong class="d-block text-truncate"><?= e($event['Name']) ?></strong><small class="app-muted"><?= e(date('M j, Y', strtotime((string) $event['Date_OF_Booking']))) ?> · <?= e($event['Venue']) ?></small></div>
                         <span class="event-arrow"><i class="bi bi-arrow-up-right"></i></span>
                     </a>

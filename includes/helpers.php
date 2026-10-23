@@ -34,3 +34,30 @@ function is_active_path(string $path): bool
     $current = basename(parse_url($_SERVER['REQUEST_URI'] ?? '', PHP_URL_PATH) ?: '');
     return $current === basename($path);
 }
+
+function store_event_image(array $file): ?string
+{
+    if (($file['error'] ?? UPLOAD_ERR_NO_FILE) === UPLOAD_ERR_NO_FILE) {
+        return null;
+    }
+    if (($file['error'] ?? UPLOAD_ERR_OK) !== UPLOAD_ERR_OK || ($file['size'] ?? 0) > EVENTSPACE_MAX_UPLOAD_BYTES) {
+        throw new RuntimeException('The event photo must be a valid image no larger than 5 MB.');
+    }
+
+    $imageInfo = @getimagesize((string) $file['tmp_name']);
+    $mime = $imageInfo['mime'] ?? '';
+    $extensions = ['image/jpeg' => 'jpg', 'image/png' => 'png', 'image/webp' => 'webp'];
+    if ($imageInfo === false || !isset($extensions[$mime])) {
+        throw new RuntimeException('Event photos must be JPG, PNG, or WebP images.');
+    }
+
+    if (!is_dir(EVENTSPACE_UPLOAD_DIR) && !mkdir(EVENTSPACE_UPLOAD_DIR, 0755, true) && !is_dir(EVENTSPACE_UPLOAD_DIR)) {
+        throw new RuntimeException('The event photo directory is unavailable.');
+    }
+
+    $filename = bin2hex(random_bytes(16)) . '.' . $extensions[$mime];
+    if (!move_uploaded_file((string) $file['tmp_name'], EVENTSPACE_UPLOAD_DIR . DIRECTORY_SEPARATOR . $filename)) {
+        throw new RuntimeException('The event photo could not be saved.');
+    }
+    return 'assets/img/uploads/' . $filename;
+}

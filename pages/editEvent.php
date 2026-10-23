@@ -1,6 +1,7 @@
 <?php
 include '../db.php';
 include '../auth.php';
+require_once __DIR__ . '/../includes/helpers.php';
 session_start();
 requireLogin('../login.php');
 requireRole(['admin', 'organizer'], 'events.php');
@@ -23,6 +24,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $capacity = $_POST['capacity'] ?? '';
     $recurrenceRule = $_POST['recurrence_rule'] ?? 'None';
     $recurrenceEndDate = $_POST['recurrence_end_date'] ?? '';
+    $imagePath = null;
     $error = null;
 
     if ($name === '' || $venue === '' || $contactInfo === '' || !in_array($status, ['0', '1'], true) || !in_array($recurrenceRule, ['None', 'Daily', 'Weekly', 'Monthly'], true)) {
@@ -36,10 +38,23 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     }
 
     if ($error === null) {
-        $stmt = $conn->prepare('UPDATE Event SET `Name` = ?, `Date_OF_Booking` = ?, `Time` = ?, `Venue` = ?, `Contact_info` = ?, `Status` = ?, `Budget` = ?, `Capacity` = NULLIF(?, \'\'), `Recurrence_Rule` = ?, `Recurrence_End_Date` = NULLIF(?, \'\') WHERE `EventID` = ?');
+        try {
+            $imagePath = store_event_image($_FILES['event_image'] ?? []);
+        } catch (RuntimeException $exception) {
+            $error = $exception->getMessage();
+        }
+    }
+
+    if ($error === null) {
+        $imageSql = $imagePath !== null ? ', `Image_Path` = ?' : '';
+        $stmt = $conn->prepare('UPDATE Event SET `Name` = ?, `Date_OF_Booking` = ?, `Time` = ?, `Venue` = ?, `Contact_info` = ?, `Status` = ?, `Budget` = ?, `Capacity` = NULLIF(?, \'\'), `Recurrence_Rule` = ?, `Recurrence_End_Date` = NULLIF(?, \'\')' . $imageSql . ' WHERE `EventID` = ?');
         $statusValue = (int) $status;
         $budgetValue = (float) $budget;
-        $stmt->bind_param('sssssidsssi', $name, $bookingDate, $time, $venue, $contactInfo, $statusValue, $budgetValue, $capacity, $recurrenceRule, $recurrenceEndDate, $eventID);
+        if ($imagePath !== null) {
+            $stmt->bind_param('sssssidsssssi', $name, $bookingDate, $time, $venue, $contactInfo, $statusValue, $budgetValue, $capacity, $recurrenceRule, $recurrenceEndDate, $imagePath, $eventID);
+        } else {
+            $stmt->bind_param('sssssidsssi', $name, $bookingDate, $time, $venue, $contactInfo, $statusValue, $budgetValue, $capacity, $recurrenceRule, $recurrenceEndDate, $eventID);
+        }
     }
 
     if ($error === null && $stmt->execute()) {
@@ -64,7 +79,6 @@ if (!$event) {
 ?>
 
 <?php
-require_once __DIR__ . '/../includes/helpers.php';
 $pageTitle = 'Edit Event';
 require __DIR__ . '/../includes/header.php';
 ?>
@@ -74,9 +88,13 @@ require __DIR__ . '/../includes/header.php';
     <?php if (isset($success)) echo "<div class='alert alert-success'>" . htmlspecialchars($success, ENT_QUOTES, 'UTF-8') . "</div>"; ?>
     <?php if (isset($error)) echo "<div class='alert alert-danger'>" . htmlspecialchars($error, ENT_QUOTES, 'UTF-8') . "</div>"; ?>
 
-    <form method="POST" class="eventspace-form">
+    <form method="POST" enctype="multipart/form-data" class="eventspace-form">
         <input type="hidden" name="csrf_token" value="<?= htmlspecialchars(csrfToken(), ENT_QUOTES, 'UTF-8') ?>">
         <div class="row g-3">
+            <div class="col-12">
+                <label for="event_image">Replace event photo <small class="text-muted">(JPG, PNG, or WebP; max 5 MB)</small></label>
+                <input type="file" name="event_image" id="event_image" class="form-control" accept="image/jpeg,image/png,image/webp">
+            </div>
             <div class="col-md-4">
                 <label>Customer Name</label>
                 <input type="text" name="name" value="<?php echo htmlspecialchars($event['Name'], ENT_QUOTES, 'UTF-8'); ?>" class="form-control" required>
