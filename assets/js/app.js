@@ -23,4 +23,21 @@
     document.querySelector("[data-sidebar-open]")?.addEventListener("click", function () { setSidebar(true); });
     document.querySelector("[data-sidebar-close]")?.addEventListener("click", function () { setSidebar(false); });
     backdrop?.addEventListener("click", function () { setSidebar(false); });
+
+    const notificationButton = document.querySelector("[data-notification-toggle]");
+    const notificationPopover = document.querySelector("[data-notification-popover]");
+    const notificationClose = document.querySelector("[data-notification-close]");
+    const setNotifications = function (open) {
+        if (!notificationPopover || !notificationButton) return;
+        notificationPopover.hidden = !open;
+        notificationButton.setAttribute("aria-expanded", open ? "true" : "false");
+    };
+    notificationButton?.addEventListener("click", function (event) {
+        event.stopPropagation();
+        setNotifications(notificationPopover.hidden);
+    });
+    notificationClose?.addEventListener("click", function () { setNotifications(false); });
+    document.addEventListener("click", function (event) {
+        if (notificationPopover && !notificationPopover.hidden && !notificationPopover.contains(event.target) && event.target !== notificationButton) setNotifications(false);
+    });
 })();

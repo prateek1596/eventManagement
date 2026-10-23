@@ -43,7 +43,7 @@ body.app-body {
 }
 h1, h2, h3, h4, h5 { font-family: "DM Serif Display", Georgia, serif; font-weight: 400; letter-spacing: -.035em; }
 a { color: var(--app-accent-strong); }
-.app-main { min-height: calc(100vh - 82px); margin-left: 286px; padding: 42px clamp(20px, 4vw, 70px) 52px; }
+.app-main { min-height: calc(100vh - 82px); margin-left: 286px; padding: 38px clamp(20px, 4vw, 70px) 52px; }
 .app-topbar {
     position: sticky; top: 0; z-index: 20; display: flex; align-items: center; gap: 20px;
     height: 82px; margin-left: 286px; padding: 0 clamp(20px, 4vw, 70px);
@@ -73,6 +73,13 @@ a { color: var(--app-accent-strong); }
 .icon-button:hover, .sidebar-toggle:hover { color: var(--app-accent); border-color: var(--app-accent); }
 .notification-button { position: relative; text-decoration: none; }
 .notification-dot { position: absolute; top: 8px; right: 8px; width: 7px; height: 7px; background: var(--app-accent); border: 2px solid var(--app-surface); border-radius: 50%; }
+.notification-popover { position: fixed; top: 72px; right: clamp(20px, 4vw, 70px); z-index: 40; width: min(360px, calc(100vw - 32px)); padding: 18px; color: var(--app-text); background: var(--app-surface); border: 1px solid var(--app-border); border-radius: 18px; box-shadow: var(--app-shadow); }
+.notification-popover-head { display: flex; align-items: flex-start; justify-content: space-between; gap: 14px; padding-bottom: 14px; border-bottom: 1px solid var(--app-border); }
+.notification-close { display: grid; width: 30px; height: 30px; place-items: center; color: var(--app-muted); background: var(--app-surface-muted); border: 0; border-radius: 9px; }
+.notification-preview { display: flex; gap: 12px; padding: 16px 0; color: var(--app-muted); font-size: .76rem; }
+.notification-preview i { color: var(--app-accent); font-size: 1.2rem; }
+.notification-preview strong { display: block; margin-bottom: 4px; color: var(--app-text); font-size: .78rem; }
+.notification-view-all { display: flex; align-items: center; justify-content: space-between; padding-top: 13px; color: var(--app-accent-strong); border-top: 1px solid var(--app-border); font-size: .75rem; font-weight: 800; }
 .user-menu { display: flex; align-items: center; gap: 9px; padding: 3px; color: var(--app-text); background: transparent; border: 0; }
 .user-menu strong, .user-menu small { display: block; }
 .user-menu strong { font-size: .75rem; }

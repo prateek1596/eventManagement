@@ -1,143 +1,28 @@
 <?php
-include 'db.php';
-session_start();
-
-if (!isset($_SESSION['username'])) {
-    header("Location: login.php");
-    exit();
-}
-
-// Get the search term and table from the URL
-$searchTerm = isset($_GET['query']) ? trim($_GET['query']) : '';
-$table = isset($_GET['table']) ? $_GET['table'] : '';
-
-// Define all the available tables and their search column(s)
-$availableTables = [
-    'event' => ['Name', 'Venue'],
-    'venue' => ['Name', 'Location'],
-    'attendee' => ['Name', 'Email'],
-    'organiser' => ['Name', 'Address'],
-    'vendor' => ['Name', 'Services'],
-    'staff' => ['Name', 'Type'],
-    'task' => ['Name', 'Details'],
-    'ticket' => ['Type'],
-    'payment' => ['Type'],
-    'sponsor' => ['Name', 'Type'],
-    'feedback' => ['Details'],
-    'amenities' => ['Name', 'Details'],
-    'promotion' => ['Name', 'Type'],
-    'schedule' => ['Name', 'Description'],
-    'eventspace' => ['Chairman']
-];
-
+declare(strict_types=1);
+require_once __DIR__ . '/db.php';
+require_once __DIR__ . '/includes/auth_guard.php';
+require_once __DIR__ . '/includes/helpers.php';
+start_eventspace_session();
+require_auth('login.php');
+$searchTerm = trim((string) ($_GET['query'] ?? ''));
+$availableTables = ['event'=>['Name','Venue'],'venue'=>['Name','Location'],'attendee'=>['Name','Email'],'organiser'=>['Name','Address'],'vendor'=>['Name','Services'],'staff'=>['Name','Type'],'task'=>['Name','Details'],'ticket'=>['Type'],'payment'=>['Type'],'sponsor'=>['Name','Type'],'feedback'=>['Details'],'amenities'=>['Name','Details'],'promotion'=>['Name','Type'],'schedule'=>['Name','Description'],'eventspace'=>['Chairman']];
 $results = [];
-
 if ($searchTerm !== '') {
-    $escaped = mysqli_real_escape_string($conn, $searchTerm);
-    $lowerSearchTerm = strtolower($escaped);
-
-    if (array_key_exists($lowerSearchTerm, $availableTables)) {
-        // If search term matches a table name, get the whole table
-        $query = "SELECT * FROM $lowerSearchTerm";
-        $res = mysqli_query($conn, $query);
-        if ($res) {
-            while ($row = mysqli_fetch_assoc($res)) {
-                $row['__table'] = ucfirst($lowerSearchTerm); // For tagging the table name
-                $results[] = $row;
-            }
-        }
-    } else {
-        // Search across all tables
-        foreach ($availableTables as $tbl => $columns) {
-            $columnList = implode(" LIKE '%$escaped%' OR ", $columns) . " LIKE '%$escaped%'";
-            $query = "SELECT * FROM $tbl WHERE $columnList";
-            $res = mysqli_query($conn, $query);
-            if ($res) {
-                while ($row = mysqli_fetch_assoc($res)) {
-                    $row['__table'] = ucfirst($tbl); // For tagging the table name
-                    $results[] = $row;
-                }
-            }
-        }
+    $escaped = $conn->real_escape_string($searchTerm);
+    $table = strtolower($searchTerm);
+    $tables = array_key_exists($table, $availableTables) ? [$table] : array_keys($availableTables);
+    foreach ($tables as $tbl) {
+        $conditions = implode(" LIKE '%{$escaped}%' OR ", $availableTables[$tbl]) . " LIKE '%{$escaped}%'";
+        $res = $conn->query("SELECT * FROM {$tbl}" . (array_key_exists($table, $availableTables) ? '' : " WHERE {$conditions}"));
+        if ($res) while ($row = $res->fetch_assoc()) { $row['__table'] = ucfirst($tbl); $results[] = $row; }
     }
 }
+$pageTitle = 'Search';
+require __DIR__ . '/includes/header.php';
 ?>
-
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Search Results - EventSpace</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link href="ui.css" rel="stylesheet">
-</head>
-<body>
-<nav class="navbar navbar-expand-lg navbar-dark bg-dark px-4 py-2">
-    <a class="navbar-brand" href="dashboard.php">EventSpace</a>
-    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarContent">
-        <span class="navbar-toggler-icon"></span>
-    </button>
-
-    <div class="collapse navbar-collapse align-items-center" id="navbarContent">
-        <!-- Left Links -->
-        <ul class="navbar-nav me-auto mb-2 mb-lg-0 ms-3">
-            <li class="nav-item"><a class="nav-link" href="pages/events.php">Events</a></li>
-            <li class="nav-item"><a class="nav-link" href="pages/venue.php">Venues</a></li>
-            <li class="nav-item"><a class="nav-link" href="pages/attendee.php">Attendees</a></li>
-            <li class="nav-item"><a class="nav-link" href="pages/organiser.php">Organisers</a></li>
-        </ul>
-
-        <!-- Search -->
-        <form class="d-flex me-3" method="GET" action="search.php">
-            <input class="form-control me-2" type="search" name="query" placeholder="Search..." aria-label="Search">
-            <button class="btn btn-outline-light" type="submit">Search</button>
-        </form>
-
-        <!-- Profile -->
-        <div class="d-flex align-items-center">
-            <img src="PP.jpeg" alt="Profile" class="rounded-circle me-2" style="width: 35px; height: 35px; object-fit: cover;">
-            <div class="dropdown">
-                <a class="text-white dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
-                    <?php echo $_SESSION['username']; ?>
-                </a>
-                <ul class="dropdown-menu dropdown-menu-end">
-                    <li><a class="dropdown-item" href="profile.php">View Profile</a></li>
-                    <li><a class="dropdown-item text-danger" href="logout.php">Logout</a></li>
-                </ul>
-            </div>
-        </div>
-    </div>
-</nav>
-
-
-<div class="container mt-4">
-    <h3 class="mb-4">Search Results for "<?php echo htmlspecialchars($searchTerm); ?>"</h3>
-
-    <?php if (empty($results)): ?>
-        <div class="alert alert-warning">No results found.</div>
-    <?php else: ?>
-        <table class="table table-bordered table-striped table-dark">
-            <thead>
-                <tr>
-                    <?php foreach (array_keys($results[0]) as $column): ?>
-                        <th><?php echo htmlspecialchars($column); ?></th>
-                    <?php endforeach; ?>
-                </tr>
-            </thead>
-            <tbody>
-                <?php foreach ($results as $row): ?>
-                    <tr>
-                        <?php foreach ($row as $cell): ?>
-                            <td><?php echo htmlspecialchars($cell); ?></td>
-                        <?php endforeach; ?>
-                    </tr>
-                <?php endforeach; ?>
-            </tbody>
-        </table>
-    <?php endif; ?>
-
-    <a href="dashboard.php" class="btn btn-light mt-4">🔙 Back to Dashboard</a>
-</div>
-
-</body>
-</html>
+<section class="page-heading-row mb-4"><div><p class="app-eyebrow">Workspace search</p><h1 class="mb-2">Search results</h1><p class="app-muted mb-0">Showing matches for “<?= e($searchTerm ?: 'everything') ?>”.</p></div></section>
+<form class="app-card p-3 mb-4" method="GET" action="<?= e(eventspace_url('search.php')) ?>"><div class="input-group"><label class="visually-hidden" for="global-search-page">Search</label><input id="global-search-page" class="form-control" type="search" name="query" value="<?= e($searchTerm) ?>" placeholder="Search events, venues, people..."><button class="btn app-btn-primary" type="submit"><i class="bi bi-search me-1"></i>Search</button></div></form>
+<?php if (!$results): ?><div class="app-card app-empty"><i class="bi bi-search fs-2 d-block mb-2"></i><h2 class="h5">No matches found</h2><p class="app-muted mb-0">Try a broader keyword or search a different area.</p></div>
+<?php else: ?><div class="app-card table-responsive"><table class="table app-table align-middle mb-0"><thead><tr><?php foreach (array_keys($results[0]) as $column): ?><th><?= e($column) ?></th><?php endforeach; ?></tr></thead><tbody><?php foreach ($results as $row): ?><tr><?php foreach ($row as $cell): ?><td><?= e((string) $cell) ?></td><?php endforeach; ?></tr><?php endforeach; ?></tbody></table></div><?php endif; ?>
+<?php require __DIR__ . '/includes/footer.php'; ?>

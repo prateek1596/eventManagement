@@ -1,11 +1,1 @@
 @import url("../ui.css");
-
-body { background: var(--paper); }
-.container { width: calc(100% - 32px); }
-.navbar .navbar-brand::before { content: "●"; }
-.page-header { display: flex; align-items: flex-end; justify-content: space-between; gap: 16px; margin-bottom: 28px; }
-.page-header h1, .page-header h2, .page-header h3 { margin-bottom: 6px; }
-@media (max-width: 700px) {
-    .container { width: calc(100% - 20px); }
-    .page-header { align-items: flex-start; flex-direction: column; }
-}

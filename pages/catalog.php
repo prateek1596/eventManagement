@@ -3,6 +3,7 @@ include '../db.php';
 include '../auth.php';
 session_start();
 requireLogin('../login.php');
+require_once __DIR__ . '/../includes/helpers.php';
 
 $query = trim($_GET['q'] ?? '');
 $from = $_GET['from'] ?? '';
@@ -34,19 +35,11 @@ if ($params) {
 }
 $stmt->execute();
 $events = $stmt->get_result();
+$pageTitle = 'Discover';
+$includeAi = true;
+require __DIR__ . '/../includes/header.php';
 ?>
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Discover events | EventSpace</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link href="style.css" rel="stylesheet">
-</head>
-<body>
-<main class="container py-4">
-    <section class="discover-hero mb-5">
+    <section class="discover-hero app-card mb-5">
         <div>
             <p class="text-uppercase mb-2" style="letter-spacing:.16em;font-size:.75rem;font-weight:800;color:#edc77f">Curated experiences</p>
             <h1>Make room for moments worth remembering.</h1>
@@ -112,17 +105,14 @@ $events = $stmt->get_result();
             </div>
         </div>
     </section>
-</main>
+
 <button type="button" data-ai-chat-toggle class="btn btn-primary position-fixed shadow-lg" style="right:20px;bottom:20px;border-radius:999px;z-index:5" aria-label="Open AI event assistant">✦ Ask EventSpace AI</button>
 <aside data-ai-chat class="card position-fixed p-3" style="right:20px;bottom:78px;width:min(360px,calc(100vw - 40px));z-index:6" hidden aria-label="AI event assistant">
     <div class="d-flex justify-content-between align-items-center mb-2"><h2 class="h5 mb-0">EventSpace AI</h2><span class="badge bg-success">Online</span></div>
     <div data-chat-log class="small mb-2"><p class="text-muted">Hi! What can I help you plan?</p></div>
     <form class="input-group"><label class="visually-hidden" for="chat-question">Ask a question</label><input id="chat-question" class="form-control" placeholder="Ask about your booking"><button class="btn btn-primary" type="submit">Send</button></form>
 </aside>
-<script src="../assets/theme.js"></script>
-<script src="../assets/js/ai.js"></script>
-<script src="../components/ai-planner.js"></script>
-<script src="../components/ai-chat.js"></script>
-<script src="../components/natural-search.js"></script>
-</body>
-</html>
+<script src="<?= e(eventspace_url('components/ai-planner.js')) ?>"></script>
+<script src="<?= e(eventspace_url('components/ai-chat.js')) ?>"></script>
+<script src="<?= e(eventspace_url('components/natural-search.js')) ?>"></script>
+<?php require __DIR__ . '/../includes/footer.php'; ?>

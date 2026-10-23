@@ -38,7 +38,7 @@ $navItems = [
     </form>
     <div class="topbar-actions">
         <button class="icon-button" type="button" data-theme-toggle aria-label="Toggle dark mode"><i class="bi bi-moon-stars"></i></button>
-        <a class="icon-button notification-button" href="<?= e(eventspace_url('pages/notifications.php')) ?>" aria-label="View notifications"><i class="bi bi-bell"></i><span class="notification-dot"></span></a>
+        <button class="icon-button notification-button" type="button" data-notification-toggle aria-expanded="false" aria-controls="notification-popover" aria-label="Open notifications"><i class="bi bi-bell"></i><span class="notification-dot"></span></button>
         <div class="dropdown">
             <button class="user-menu dropdown-toggle" data-bs-toggle="dropdown" type="button">
                 <span class="user-avatar"><?= e(strtoupper(substr($user['username'] ?? 'U', 0, 1))) ?></span>
@@ -51,3 +51,8 @@ $navItems = [
         </div>
     </div>
 </header>
+<aside id="notification-popover" class="notification-popover" data-notification-popover hidden aria-label="Notifications">
+    <div class="notification-popover-head"><div><p class="app-eyebrow mb-1">Your inbox</p><h2 class="h5 mb-0">Notifications</h2></div><button type="button" class="notification-close" data-notification-close aria-label="Close notifications"><i class="bi bi-x-lg"></i></button></div>
+    <div class="notification-preview"><i class="bi bi-calendar-heart"></i><div><strong>Stay close to your next event.</strong><p class="mb-0">Open your notifications to see reminders and booking updates.</p></div></div>
+    <a class="notification-view-all" href="<?= e(eventspace_url('pages/notifications.php')) ?>">View all notifications <i class="bi bi-arrow-up-right"></i></a>
+</aside>

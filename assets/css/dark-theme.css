@@ -1,0 +1,2 @@
+/* Compatibility layer for legacy pages. The shared EventSpace tokens live in ui.css. */
+@import url("../../ui.css");

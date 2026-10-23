@@ -1,69 +1,37 @@
 <?php
-include 'db.php';
-session_start();
+declare(strict_types=1);
 
-if (!isset($_SESSION['username'])) {
-    header("Location: login.php");
-    exit();
-}
+require_once __DIR__ . '/db.php';
+require_once __DIR__ . '/includes/auth_guard.php';
+require_once __DIR__ . '/includes/helpers.php';
 
-$username = $_SESSION['username'];
-
-// Fetch user data
-$stmt = $conn->prepare("SELECT * FROM Users WHERE username = ?");
-$stmt->bind_param("s", $username);
+start_eventspace_session();
+require_auth('login.php');
+$username = (string) $_SESSION['username'];
+$stmt = $conn->prepare('SELECT * FROM Users WHERE username = ?');
+$stmt->bind_param('s', $username);
 $stmt->execute();
-$result = $stmt->get_result();
-$user = $result->fetch_assoc();
-
-// Fallbacks for optional fields
-$role = isset($user['role']) ? $user['role'] : 'N/A';
-$phone = isset($user['phone']) ? $user['phone'] : 'N/A';
-$name = isset($user['name']) ? $user['name'] : $user['username'];
+$user = $stmt->get_result()->fetch_assoc() ?: [];
+$role = $user['role'] ?? 'N/A';
+$phone = $user['phone'] ?? 'N/A';
+$name = $user['name'] ?? $username;
+$pageTitle = 'Profile';
+require __DIR__ . '/includes/header.php';
 ?>
-
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Profile - <?= htmlspecialchars($username) ?></title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link href="assets/css/dark-theme.css" rel="stylesheet">
-    <link href="ui.css" rel="stylesheet">
-</head>
-<body>
-
-<nav class="navbar navbar-expand-lg navbar-dark bg-dark">
-    <div class="container-fluid">
-        <a class="navbar-brand" href="dashboard.php">EventSpace</a>
-        <a href="logout.php" class="btn btn-danger logout-btn">Logout</a>
+<section class="page-heading-row mb-4">
+    <div><p class="app-eyebrow">Your identity</p><h1 class="mb-2">Profile settings</h1><p class="app-muted mb-0">Keep your workspace details current.</p></div>
+    <a href="<?= e(eventspace_url('editProfile.php')) ?>" class="btn app-btn-primary"><i class="bi bi-pencil me-1"></i>Edit profile</a>
+</section>
+<section class="profile-studio app-card">
+    <div class="profile-studio-top">
+        <img src="<?= e(eventspace_url('PP.jpeg')) ?>" alt="Profile picture for <?= e($name) ?>" class="profile-studio-image" width="112" height="112">
+        <div><p class="app-eyebrow mb-1">Team member</p><h2 class="mb-1"><?= e($name) ?></h2><p class="app-muted mb-0"><?= e($user['email'] ?? '') ?></p></div>
     </div>
-</nav>
-
-<div class="container mt-5 text-center profile-container">
-    <?php
-    $profileImg = file_exists("assets/img/users/{$username}.png")
-        ? "assets/img/users/{$username}.png"
-        : "assets/img/users/default.png";
-    ?>
-    <img src="PP.jpeg" alt="Profile Picture" class="profile-img mb-4" width="150" height="150">
-
-    <h2><?= htmlspecialchars($name) ?></h2>
-    <p class="email-muted"><?= htmlspecialchars($user['email']) ?></p>
-    <hr class="my-4">
-
-    <div class="text-start">
-        <p><strong>Username:</strong> <?= htmlspecialchars($user['username']) ?></p>
-        <p><strong>Role:</strong> <?= htmlspecialchars($role) ?></p>
-        <p><strong>Phone:</strong> <?= htmlspecialchars($phone) ?></p>
-        <p><strong>Joined:</strong> <?= htmlspecialchars($user['created_at']) ?></p>
+    <div class="profile-details">
+        <div><span>Username</span><strong><?= e($username) ?></strong></div>
+        <div><span>Role</span><strong><?= e($role) ?></strong></div>
+        <div><span>Phone</span><strong><?= e($phone) ?></strong></div>
+        <div><span>Joined</span><strong><?= e($user['created_at'] ?? 'N/A') ?></strong></div>
     </div>
-
-    <div class="mt-4">
-        <a href="editProfile.php" class="btn btn-outline-primary">Edit Profile</a>
-    </div>
-</div>
-
-</body>
-</html>
+</section>
+<?php require __DIR__ . '/includes/footer.php'; ?>
