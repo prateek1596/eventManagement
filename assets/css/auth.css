@@ -1,0 +1,27 @@
+@import url("https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=Manrope:wght@400;500;600;700;800&display=swap");
+
+:root { --auth-ink:#172321; --auth-muted:#71807b; --auth-paper:#f4f1eb; --auth-card:#fffdf9; --auth-line:#ddd8cf; --auth-coral:#ee684a; --auth-blue:#3b6cf4; }
+* { box-sizing:border-box; }
+body.auth-page { min-height:100vh; margin:0; color:var(--auth-ink); background:var(--auth-paper); font-family:Manrope, sans-serif; }
+.auth-layout { display:grid; min-height:100vh; grid-template-columns:minmax(0, 1.05fr) minmax(420px, .95fr); }
+.auth-art { position:relative; display:flex; min-height:100%; align-items:flex-end; padding:clamp(28px, 6vw, 88px); overflow:hidden; color:#fff; background:linear-gradient(145deg,rgba(23,35,33,.92),rgba(23,35,33,.3)),url("https://images.unsplash.com/photo-1519167758481-83f550bb49b3?auto=format&fit=crop&w=1600&q=85") center/cover; }
+.auth-art::before { position:absolute; top:12%; right:-100px; width:360px; height:360px; content:""; border:1px solid rgba(255,255,255,.32); border-radius:50%; box-shadow:0 0 0 28px rgba(255,255,255,.07),0 0 0 56px rgba(255,255,255,.04); }
+.auth-art > * { position:relative; z-index:1; }
+.auth-brand { position:absolute; top:38px; left:clamp(28px,6vw,88px); display:flex; align-items:center; gap:11px; color:#fff; font-weight:800; letter-spacing:-.04em; }
+.auth-mark { display:grid; width:38px; height:38px; place-items:center; color:var(--auth-ink); background:var(--auth-coral); border-radius:13px; }
+.auth-copy { max-width:560px; }
+.auth-copy h1 { margin:0 0 18px; color:#fff; font:400 clamp(3rem,6vw,6.4rem)/.9 "DM Serif Display",Georgia,serif; letter-spacing:-.045em; }
+.auth-copy h1 em { color:#ff927a; font-style:normal; }
+.auth-copy p { max-width:440px; color:rgba(255,255,255,.76); font-size:1rem; }
+.auth-panel { display:flex; align-items:center; justify-content:center; padding:clamp(28px,7vw,100px); background:var(--auth-card); }
+.auth-form { width:min(100%,420px); }
+.auth-kicker { margin-bottom:10px; color:var(--auth-coral); font-size:.68rem; font-weight:800; letter-spacing:.16em; text-transform:uppercase; }
+.auth-form h2 { margin-bottom:8px; font:400 clamp(2.1rem,4vw,3.2rem)/1 "DM Serif Display",Georgia,serif; letter-spacing:-.04em; }
+.auth-form .intro { margin-bottom:30px; color:var(--auth-muted); font-size:.88rem; }
+.auth-form .form-label { color:var(--auth-ink); font-size:.75rem; font-weight:800; }
+.auth-form .form-control, .auth-form .form-select { min-height:48px; border:1px solid var(--auth-line); border-radius:12px; background:#faf8f3; }
+.auth-form .form-control:focus, .auth-form .form-select:focus { border-color:var(--auth-coral); box-shadow:0 0 0 4px rgba(238,104,74,.13); }
+.auth-form .btn-primary { min-height:48px; padding-inline:22px; color:#fff; background:var(--auth-coral); border:0; border-radius:12px; font-weight:800; }
+.auth-form .btn-primary:hover { background:#c94731; }
+.auth-link { color:var(--auth-coral); font-weight:800; text-decoration:none; }
+@media(max-width:850px) { .auth-layout { display:block; } .auth-art { min-height:300px; padding:32px 28px; } .auth-brand { top:25px; left:28px; } .auth-copy h1 { font-size:3.5rem; } .auth-panel { padding:42px 24px 60px; } }

@@ -45,32 +45,30 @@ if (request_is_post()) {
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Sign in | EventSpace</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css" rel="stylesheet">
-    <link href="glassstyle.css" rel="stylesheet">
+    <link href="assets/css/auth.css" rel="stylesheet">
 </head>
-<body>
-    <div class="login-container">
-        <div class="circle blue"></div>
-        <div class="circle orange"></div>
-        <div class="glass-card">
-            <p class="eyebrow">EVENTSPACE / OPERATIONS</p>
-            <h1>Welcome back.</h1>
-            <p class="intro">Sign in to keep your events moving.</p>
-            <?php if (isset($error)) echo '<div class="alert" role="alert">' . htmlspecialchars($error, ENT_QUOTES, 'UTF-8') . '</div>'; ?>
-            <form method="POST">
-                <input type="hidden" name="csrf_token" value="<?= htmlspecialchars(csrfToken(), ENT_QUOTES, 'UTF-8') ?>">
-                <label for="username">Username</label>
-                <input type="text" id="username" name="username" placeholder="Your username" autocomplete="username" required>
-
-                <label for="password">Password</label>
-                <input type="password" id="password" name="password" placeholder="Your password" autocomplete="current-password" required>
-
-                <button type="submit" class="login-btn">Sign in <span aria-hidden="true">→</span></button>
-
-                <div class="register-text">
-                    <p>New to EventSpace? <a href="register.php">Create an account</a></p>
-                </div>
-            </form>
-        </div>
-    </div>
+<body class="auth-page">
+    <main class="auth-layout">
+        <section class="auth-art">
+            <a class="auth-brand" href="login.php"><span class="auth-mark">✦</span> EventSpace</a>
+            <div class="auth-copy"><p class="auth-kicker">Event operations, reimagined</p><h1>Bring people<br><em>together beautifully.</em></h1><p>One calm, considered place to plan experiences, manage guests, and keep every moving part in rhythm.</p></div>
+        </section>
+        <section class="auth-panel">
+            <div class="auth-form">
+                <p class="auth-kicker">Welcome back</p>
+                <h2>Sign in to your studio.</h2>
+                <p class="intro">Keep your events moving with clarity and confidence.</p>
+                <?php if (isset($error)) echo '<div class="alert alert-danger" role="alert">' . htmlspecialchars($error, ENT_QUOTES, 'UTF-8') . '</div>'; ?>
+                <form method="POST">
+                    <input type="hidden" name="csrf_token" value="<?= htmlspecialchars(csrfToken(), ENT_QUOTES, 'UTF-8') ?>">
+                    <div class="mb-3"><label class="form-label" for="username">Username</label><input class="form-control" type="text" id="username" name="username" placeholder="Your username" autocomplete="username" required></div>
+                    <div class="mb-4"><label class="form-label" for="password">Password</label><input class="form-control" type="password" id="password" name="password" placeholder="Your password" autocomplete="current-password" required></div>
+                    <button type="submit" class="btn btn-primary w-100">Sign in <span aria-hidden="true">→</span></button>
+                    <p class="text-muted small mt-4 mb-0">New to EventSpace? <a class="auth-link" href="register.php">Create an account</a></p>
+                </form>
+            </div>
+        </section>
+    </main>
+    <script src="assets/js/app.js"></script>
 </body>
 </html>

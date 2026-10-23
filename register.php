@@ -65,13 +65,13 @@ if (request_is_post()) {
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Create account | EventSpace</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link href="ui.css" rel="stylesheet">
+    <link href="assets/css/auth.css" rel="stylesheet">
 </head>
-<body>
-<main class="container auth-shell">
-    <p class="text-uppercase text-muted mb-2" style="font-size:.72rem;font-weight:800;letter-spacing:.14em;color:#635bff !important;">EventSpace / Team access</p>
-    <h1 class="mt-4">Create your account</h1>
-    <p class="text-muted">Set up access to your event workspace.</p>
+<body class="auth-page">
+<main class="auth-layout">
+<section class="auth-art"><a class="auth-brand" href="login.php"><span class="auth-mark">✦</span> EventSpace</a><div class="auth-copy"><p class="auth-kicker">Your next chapter starts here</p><h1>Design moments<br><em>worth remembering.</em></h1><p>Build a workspace where the details feel lighter and every guest feels considered.</p></div></section>
+<section class="auth-panel"><div class="auth-form">
+    <p class="auth-kicker">Team access</p><h2>Create your studio account.</h2><p class="intro">Set up access to your EventSpace workspace.</p>
     <?php if ($error_message): ?><div class="alert alert-danger" role="alert"><?= htmlspecialchars($error_message, ENT_QUOTES, 'UTF-8') ?></div><?php endif; ?>
     <form action="register.php" method="POST" novalidate>
         <input type="hidden" name="csrf_token" value="<?= htmlspecialchars(csrfToken(), ENT_QUOTES, 'UTF-8') ?>">
@@ -81,9 +81,9 @@ if (request_is_post()) {
         <div class="mb-3"><label class="form-label" for="phone">Phone number</label><input type="tel" class="form-control" id="phone" name="phone" pattern="[0-9]{10}" maxlength="10" required></div>
         <div class="mb-3"><label class="form-label" for="role">Role</label><select class="form-select" id="role" name="role" required><option value="">Choose a role</option><option value="Organizer">Organizer</option><option value="Staff">Staff</option></select></div>
         <div class="mb-3"><label class="form-label" for="password">Password</label><input type="password" class="form-control" id="password" name="password" minlength="8" autocomplete="new-password" required></div>
-        <button type="submit" class="btn btn-primary">Create account</button>
-        <a class="btn btn-link" href="login.php">Back to sign in</a>
+        <button type="submit" class="btn btn-primary w-100">Create account</button>
+        <p class="text-muted small mt-4 mb-0">Already have an account? <a class="auth-link" href="login.php">Back to sign in</a></p>
     </form>
-</main>
+</div></section></main>
 </body>
 </html>
