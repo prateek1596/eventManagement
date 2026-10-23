@@ -1,23 +1,34 @@
 <?php
-include 'db.php';
-session_start();
-if (!isset($_SESSION['username'])) {
-    header("Location: login.php");
-    exit();
+declare(strict_types=1);
+
+require_once __DIR__ . '/db.php';
+require_once __DIR__ . '/includes/auth_guard.php';
+require_once __DIR__ . '/includes/helpers.php';
+
+start_eventspace_session();
+require_auth('login.php');
+
+$pageTitle = 'Dashboard';
+$includeCharts = true;
+$username = (string) ($_SESSION['username'] ?? 'there');
+$dashboardCounts = ['events' => 0, 'venues' => 0, 'attendees' => 0, 'organisers' => 0];
+$countTables = ['events' => 'Event', 'venues' => 'Venue', 'attendees' => 'Attendee', 'organisers' => 'Organiser'];
+foreach ($countTables as $label => $table) {
+    $result = $conn->query("SELECT COUNT(*) AS total FROM `$table`");
+    if ($result) {
+        $dashboardCounts[$label] = (int) $result->fetch_assoc()['total'];
+    }
 }
 
-$dashboardCounts = [];
-foreach (['Event' => 'events', 'Venue' => 'venues', 'Attendee' => 'attendees', 'Organiser' => 'organisers'] as $table => $label) {
-    $countResult = $conn->query("SELECT COUNT(*) AS total FROM `$table`");
-    $dashboardCounts[$label] = $countResult ? (int) $countResult->fetch_assoc()['total'] : 0;
-}
 $notificationCount = 0;
 $notificationStmt = $conn->prepare('SELECT COUNT(*) AS total FROM event_notifications WHERE Username = ? AND Is_Read = 0');
 if ($notificationStmt) {
-    $notificationStmt->bind_param('s', $_SESSION['username']);
+    $notificationStmt->bind_param('s', $username);
     $notificationStmt->execute();
     $notificationCount = (int) $notificationStmt->get_result()->fetch_assoc()['total'];
+    $notificationStmt->close();
 }
+
 $confirmedRsvps = 0;
 $waitlistedRsvps = 0;
 $rsvpStats = $conn->query("SELECT RSVP_Status, COUNT(*) AS total FROM event_rsvps GROUP BY RSVP_Status");
@@ -25,153 +36,162 @@ if ($rsvpStats) {
     while ($rsvpStat = $rsvpStats->fetch_assoc()) {
         if ($rsvpStat['RSVP_Status'] === 'Confirmed') {
             $confirmedRsvps = (int) $rsvpStat['total'];
-        } elseif ($rsvpStat['RSVP_Status'] === 'Waitlisted') {
+        }
+        if ($rsvpStat['RSVP_Status'] === 'Waitlisted') {
             $waitlistedRsvps = (int) $rsvpStat['total'];
         }
     }
 }
+
 $upcomingEvents = [];
 $upcomingResult = $conn->query("SELECT EventID, Name, Date_OF_Booking, Time, Venue, Capacity FROM Event WHERE Date_OF_Booking >= CURDATE() ORDER BY Date_OF_Booking, Time LIMIT 5");
 if ($upcomingResult) {
-    while ($upcomingEvent = $upcomingResult->fetch_assoc()) {
-        $upcomingEvents[] = $upcomingEvent;
+    while ($row = $upcomingResult->fetch_assoc()) {
+        $upcomingEvents[] = $row;
     }
 }
+
+$recentAttendees = [];
+$attendeeResult = $conn->query("SELECT AttendeeID, Name, Email, RSVP FROM Attendee LIMIT 5");
+if ($attendeeResult) {
+    while ($row = $attendeeResult->fetch_assoc()) {
+        $recentAttendees[] = $row;
+    }
+}
+
+$bookingLabels = [];
+$bookingValues = [];
+$bookingResult = $conn->query("SELECT DATE_FORMAT(Date_OF_Booking, '%b') AS month_label, COUNT(*) AS total FROM Event WHERE Date_OF_Booking >= DATE_SUB(CURDATE(), INTERVAL 6 MONTH) GROUP BY YEAR(Date_OF_Booking), MONTH(Date_OF_Booking) ORDER BY YEAR(Date_OF_Booking), MONTH(Date_OF_Booking)");
+if ($bookingResult) {
+    while ($row = $bookingResult->fetch_assoc()) {
+        $bookingLabels[] = $row['month_label'];
+        $bookingValues[] = (int) $row['total'];
+    }
+}
+
+$categoryLabels = ['Events'];
+$categoryValues = [$dashboardCounts['events']];
+$revenue = 0.0;
+$revenueResult = $conn->query("SELECT COALESCE(SUM(t.Price), 0) AS revenue FROM event_tickets t INNER JOIN event_rsvps r ON r.Ticket_ID = t.Ticket_ID WHERE r.Payment_Status = 'Paid'");
+if ($revenueResult) {
+    $revenue = (float) $revenueResult->fetch_assoc()['revenue'];
+}
+
+require __DIR__ . '/includes/header.php';
 ?>
-
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Dashboard - Event Manager</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link href="ui.css" rel="stylesheet">
-</head>
-<body>
-
-<!-- Top Navbar -->
-<nav class="navbar navbar-expand-lg navbar-dark bg-dark px-4 py-2">
-    <a class="navbar-brand" href="#">EventSpace</a>
-    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarContent">
-        <span class="navbar-toggler-icon"></span>
-    </button>
-
-    <div class="collapse navbar-collapse align-items-center" id="navbarContent">
-        <!-- Left Links -->
-        <ul class="navbar-nav me-auto mb-2 mb-lg-0 ms-3">
-            <li class="nav-item"><a class="nav-link" href="pages/events.php">Events</a></li>
-            <li class="nav-item"><a class="nav-link" href="pages/venue.php">Venues</a></li>
-            <li class="nav-item"><a class="nav-link" href="pages/attendee.php">Attendees</a></li>
-            <li class="nav-item"><a class="nav-link" href="pages/organiser.php">Organisers</a></li>
-            <li class="nav-item"><a class="nav-link" href="pages/catalog.php">Discover</a></li>
-            <li class="nav-item"><a class="nav-link" href="pages/checkin.php">Check-in</a></li>
-            <li class="nav-item"><a class="nav-link" href="pages/tickets.php">Tickets</a></li>
-            <li class="nav-item"><a class="nav-link" href="pages/notifications.php">Notifications<?php if ($notificationCount > 0): ?> <span class="badge bg-danger"><?= $notificationCount ?></span><?php endif; ?></a></li>
-            <?php if (in_array(strtolower($_SESSION['role'] ?? ''), ['admin', 'organizer'], true)): ?><li class="nav-item"><a class="nav-link" href="pages/analytics.php">Analytics</a></li><?php endif; ?>
-        </ul>
-
-        <!-- Search -->
-        <form class="d-flex me-3" method="GET" action="search.php">
-            <input class="form-control me-2" type="search" name="query" placeholder="Search..." aria-label="Search">
-            <button class="btn btn-outline-light" type="submit">Search</button>
-        </form>
-
-        <!-- Profile -->
-        <div class="d-flex align-items-center">
-            <img src="PP.jpeg" alt="Profile" class="rounded-circle me-2" style="width: 35px; height: 35px; object-fit: cover;">
-            <div class="dropdown">
-                <a class="text-white dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
-                    <?php echo $_SESSION['username']; ?>
-                </a>
-                <ul class="dropdown-menu dropdown-menu-end">
-                    <li><a class="dropdown-item" href="profile.php">View Profile</a></li>
-                    <li><a class="dropdown-item text-danger" href="logout.php">Logout</a></li>
-                </ul>
-            </div>
-        </div>
+<section class="dashboard-header d-flex flex-wrap justify-content-between align-items-end gap-3 mb-5">
+    <div>
+        <p class="app-eyebrow">Operations overview</p>
+        <h1 class="mb-2">Good to see you, <?= e($username) ?>.</h1>
+        <p class="app-muted mb-0">Here is what is happening across your event workspace.</p>
     </div>
-</nav>
-
-
-
-<main class="container mt-4">
-    <div class="d-flex flex-wrap justify-content-between align-items-end gap-3 mb-4">
-        <div>
-            <p class="text-uppercase text-muted mb-2" style="font: 700 .72rem 'Trebuchet MS', sans-serif; letter-spacing: .12em;">Operations overview</p>
-            <h1 class="mb-2">Good to see you, <?php echo htmlspecialchars($_SESSION['username']); ?>.</h1>
-            <p class="text-muted mb-0">Keep the next experience moving from one calm workspace.</p>
-        </div>
-        <a href="pages/addEvent.php" class="btn btn-primary">+ Create event</a>
+    <div class="d-flex gap-2">
+        <a class="btn btn-light border" href="<?= e(eventspace_url('pages/addVenue.php')) ?>"><i class="bi bi-building-add me-1"></i>Add venue</a>
+        <a class="btn app-btn-primary" href="<?= e(eventspace_url('pages/addEvent.php')) ?>"><i class="bi bi-plus-lg me-1"></i>New event</a>
     </div>
+</section>
 
-    <div class="row row-cols-2 row-cols-lg-4 g-3 mb-4">
-        <?php foreach ([['events', 'Events', 'pages/events.php'], ['venues', 'Venues', 'pages/venue.php'], ['attendees', 'Attendees', 'pages/attendee.php'], ['organisers', 'Organisers', 'pages/organiser.php']] as $metric): ?>
-            <div class="col">
-                <a href="<?= $metric[2] ?>" class="text-decoration-none">
-                    <div class="card h-100 p-3">
-                        <p class="text-muted mb-2" style="font: 700 .75rem 'Trebuchet MS', sans-serif; text-transform: uppercase; letter-spacing: .08em;"><?= $metric[1] ?></p>
-                        <div class="d-flex justify-content-between align-items-end">
-                            <strong style="font-size: 2rem; line-height: 1;"><?= $dashboardCounts[$metric[0]] ?></strong>
-                            <span style="color: #1f6f68; font-size: 1.4rem;">↗</span>
-                        </div>
-                    </div>
-                </a>
-            </div>
-        <?php endforeach; ?>
+<section class="row g-3 mb-4" aria-label="Key performance indicators">
+    <?php
+    $kpis = [
+        ['Total events', $dashboardCounts['events'], 'calendar-event', 'pages/events.php', 'All events'],
+        ['Upcoming events', count($upcomingEvents), 'calendar-check', 'pages/catalog.php', 'Next experiences'],
+        ['Total attendees', $dashboardCounts['attendees'], 'people', 'pages/attendee.php', 'Guest records'],
+        ['Revenue', '₹' . number_format($revenue, 0), 'graph-up-arrow', 'pages/analytics.php', 'Paid ticket revenue'],
+    ];
+    foreach ($kpis as [$label, $value, $icon, $href, $caption]):
+    ?>
+    <div class="col-6 col-xl-3">
+        <a class="text-decoration-none" href="<?= e(eventspace_url($href)) ?>">
+            <article class="app-card app-card-hover h-100">
+                <div class="d-flex justify-content-between align-items-start">
+                    <span class="kpi-icon"><i class="bi bi-<?= e($icon) ?>"></i></span>
+                    <span class="kpi-trend"><i class="bi bi-arrow-up-right"></i></span>
+                </div>
+                <p class="app-muted small mb-1 mt-3"><?= e($label) ?></p>
+                <strong class="kpi-value"><?= e((string) $value) ?></strong>
+                <small class="app-muted d-block mt-2"><?= e($caption) ?></small>
+            </article>
+        </a>
     </div>
+    <?php endforeach; ?>
+</section>
 
-    <div class="row row-cols-1 row-cols-md-3 g-3 mb-5">
-        <div class="col"><div class="card h-100 p-3"><p class="text-muted mb-2 text-uppercase small fw-bold">Confirmed RSVPs</p><strong style="font-size: 2rem; line-height: 1;"><?= $confirmedRsvps ?></strong><span class="text-muted mt-2">Ready-to-attend guests</span></div></div>
-        <div class="col"><div class="card h-100 p-3"><p class="text-muted mb-2 text-uppercase small fw-bold">Waitlisted</p><strong style="font-size: 2rem; line-height: 1;"><?= $waitlistedRsvps ?></strong><span class="text-muted mt-2">Guests needing capacity</span></div></div>
-        <div class="col"><div class="card h-100 p-3"><p class="text-muted mb-2 text-uppercase small fw-bold">Notifications</p><strong style="font-size: 2rem; line-height: 1;"><?= $notificationCount ?></strong><span class="text-muted mt-2">Unread updates</span></div></div>
-    </div>
-
-    <div class="row g-4">
-        <div class="col-lg-7">
+<section class="row g-4 mb-4">
+    <div class="col-xl-8">
+        <article class="app-card h-100">
             <div class="d-flex justify-content-between align-items-center mb-3">
-                <h3 class="mb-0" style="font-size: 1.45rem;">Manage your workspace</h3>
-                <span class="text-muted" style="font: .82rem 'Trebuchet MS', sans-serif;">Core records</span>
+                <div><p class="app-eyebrow mb-1">Momentum</p><h2 class="h4 mb-0">Bookings over time</h2></div>
+                <span class="chart-caption">Last 6 months</span>
             </div>
-            <div class="row row-cols-1 row-cols-md-2 g-3">
-                <div class="col"><a href="pages/events.php" class="text-decoration-none"><div class="card h-100 p-3"><h5>Events</h5><p class="text-muted mb-0">Plan dates, budgets, venues, and status.</p></div></a></div>
-                <div class="col"><a href="pages/venue.php" class="text-decoration-none"><div class="card h-100 p-3"><h5>Venues</h5><p class="text-muted mb-0">Keep locations and availability current.</p></div></a></div>
-                <div class="col"><a href="pages/attendee.php" class="text-decoration-none"><div class="card h-100 p-3"><h5>Attendees</h5><p class="text-muted mb-0">Track contacts and RSVP readiness.</p></div></a></div>
-                <div class="col"><a href="pages/organiser.php" class="text-decoration-none"><div class="card h-100 p-3"><h5>Organisers</h5><p class="text-muted mb-0">Manage the people behind every event.</p></div></a></div>
-            </div>
-        </div>
-        <div class="col-lg-5">
-            <div class="card h-100 p-4" style="background: #172126; color: #f8fbf5; border: 0;">
-                <p class="text-uppercase mb-3" style="color: #9bcfc4; font: 700 .72rem 'Trebuchet MS', sans-serif; letter-spacing: .12em;">Quick find</p>
-                <h3 style="color: #fff; font-size: 1.7rem;">Need a record fast?</h3>
-                <p style="color: #b9c8c5;">Search across your event data from one place.</p>
-                <form class="mt-auto" method="GET" action="search.php">
-                    <div class="input-group">
-                        <input class="form-control" type="search" name="query" placeholder="Search events, people, venues..." aria-label="Search records">
-                        <button class="btn btn-primary" type="submit">Search</button>
-                    </div>
-                </form>
-            </div>
-        </div>
+            <div class="chart-container"><canvas id="bookingsChart" aria-label="Bookings over the last six months" role="img"></canvas></div>
+        </article>
     </div>
+    <div class="col-xl-4">
+        <article class="app-card h-100">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <div><p class="app-eyebrow mb-1">Portfolio</p><h2 class="h4 mb-0">Events by category</h2></div>
+            </div>
+            <div class="chart-container chart-container-doughnut"><canvas id="categoryChart" aria-label="Events by category" role="img"></canvas></div>
+            <p class="chart-empty app-muted small text-center mb-0" hidden>Category data will appear as events are categorized.</p>
+        </article>
+    </div>
+</section>
 
-    <section class="mt-5">
-        <div class="d-flex justify-content-between align-items-center mb-3">
-            <div><p class="text-uppercase text-muted mb-1" style="font: 700 .72rem 'Trebuchet MS', sans-serif; letter-spacing: .12em;">What is next</p><h3 class="mb-0" style="font-size: 1.45rem;">Upcoming events</h3></div>
-            <a href="pages/events.php" class="btn btn-outline-secondary btn-sm">View all</a>
-        </div>
-        <div class="list-group">
-            <?php if (!$upcomingEvents): ?><div class="card p-4 text-muted">No upcoming events yet. Create one to start planning.</div><?php endif; ?>
-            <?php foreach ($upcomingEvents as $upcoming): ?>
-                <a href="pages/rsvps.php?event=<?= (int) $upcoming['EventID'] ?>" class="list-group-item list-group-item-action d-flex justify-content-between align-items-center py-3">
-                    <span><strong><?= htmlspecialchars($upcoming['Name'], ENT_QUOTES, 'UTF-8') ?></strong><small class="d-block text-muted"><?= htmlspecialchars($upcoming['Date_OF_Booking'] . ' · ' . $upcoming['Time'] . ' · ' . $upcoming['Venue'], ENT_QUOTES, 'UTF-8') ?></small></span>
-                    <span class="badge text-bg-light"><?= $upcoming['Capacity'] === null ? 'Unlimited' : (int) $upcoming['Capacity'] . ' seats' ?></span>
-                </a>
-            <?php endforeach; ?>
-        </div>
-    </section>
-</main>
+<section class="row g-4 mb-4">
+    <div class="col-xl-7">
+        <article class="app-card h-100">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <div><p class="app-eyebrow mb-1">On the horizon</p><h2 class="h4 mb-0">Upcoming events</h2></div>
+                <a class="small fw-bold" href="<?= e(eventspace_url('pages/events.php')) ?>">View all</a>
+            </div>
+            <?php if (!$upcomingEvents): ?>
+                <div class="app-empty"><i class="bi bi-calendar2-plus fs-2 d-block mb-2"></i>No upcoming events yet.</div>
+            <?php else: ?>
+                <div class="dashboard-event-list">
+                <?php foreach ($upcomingEvents as $event): ?>
+                    <a class="dashboard-event" href="<?= e(eventspace_url('pages/publicEvent.php?event=' . (int) $event['EventID'])) ?>">
+                        <div class="event-thumb" role="img" aria-label="Event image placeholder"></div>
+                        <div class="flex-grow-1 min-width-0"><strong class="d-block text-truncate"><?= e($event['Name']) ?></strong><small class="app-muted"><?= e(date('M j, Y', strtotime((string) $event['Date_OF_Booking']))) ?> · <?= e($event['Venue']) ?></small></div>
+                        <span class="event-arrow"><i class="bi bi-arrow-up-right"></i></span>
+                    </a>
+                <?php endforeach; ?>
+                </div>
+            <?php endif; ?>
+        </article>
+    </div>
+    <div class="col-xl-5">
+        <article class="app-card insight-card h-100">
+            <p class="app-eyebrow mb-1">Smart insights</p>
+            <h2 class="h4 mb-3">Signals worth your attention</h2>
+            <div class="insight-item"><i class="bi bi-lightning-charge"></i><span><?= $confirmedRsvps > 0 ? e($confirmedRsvps . ' confirmed guests are ready to attend.') : 'Confirm your first RSVP to start seeing booking momentum.' ?></span></div>
+            <div class="insight-item"><i class="bi bi-hourglass-split"></i><span><?= $waitlistedRsvps > 0 ? e($waitlistedRsvps . ' guests are currently waitlisted.') : 'No waitlist pressure detected across current events.' ?></span></div>
+            <div class="insight-item"><i class="bi bi-stars"></i><span>Keep event capacity and ticket data current for sharper recommendations.</span></div>
+        </article>
+    </div>
+</section>
 
-<script src="assets/theme.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-</body>
-</html>
+<section class="app-card">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <div><p class="app-eyebrow mb-1">Guest pulse</p><h2 class="h4 mb-0">Recent attendees</h2></div>
+        <a class="small fw-bold" href="<?= e(eventspace_url('pages/attendee.php')) ?>">Manage attendees</a>
+    </div>
+    <?php if (!$recentAttendees): ?>
+        <div class="app-empty">No attendee records yet.</div>
+    <?php else: ?>
+        <div class="table-responsive dashboard-table"><table class="table align-middle mb-0">
+            <thead><tr><th>Name</th><th>Email</th><th>RSVP</th><th class="text-end">ID</th></tr></thead>
+            <tbody><?php foreach ($recentAttendees as $attendee): ?><tr><td><span class="table-avatar"><?= e(strtoupper(substr((string) $attendee['Name'], 0, 1))) ?></span><?= e($attendee['Name']) ?></td><td class="app-muted"><?= e($attendee['Email']) ?></td><td><span class="status-badge <?= !empty($attendee['RSVP']) ? 'status-success' : 'status-muted' ?>"><?= !empty($attendee['RSVP']) ? 'Confirmed' : 'Pending' ?></span></td><td class="text-end app-muted">#<?= (int) $attendee['AttendeeID'] ?></td></tr><?php endforeach; ?></tbody>
+        </table></div>
+    <?php endif; ?>
+</section>
+
+<script>
+window.eventSpaceDashboardData = {
+    bookingLabels: <?= json_encode($bookingLabels, JSON_UNESCAPED_UNICODE) ?>,
+    bookingValues: <?= json_encode($bookingValues) ?>,
+    categoryLabels: <?= json_encode($categoryLabels, JSON_UNESCAPED_UNICODE) ?>,
+    categoryValues: <?= json_encode($categoryValues) ?>
+};
+</script>
+<?php require __DIR__ . '/includes/footer.php'; ?>
