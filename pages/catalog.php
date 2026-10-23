@@ -8,6 +8,8 @@ require_once __DIR__ . '/../includes/helpers.php';
 $query = trim($_GET['q'] ?? '');
 $from = $_GET['from'] ?? '';
 $to = $_GET['to'] ?? '';
+$location = trim((string) ($_GET['location'] ?? ''));
+$maxPrice = filter_var($_GET['max_price'] ?? null, FILTER_VALIDATE_FLOAT);
 $where = ['Date_OF_Booking >= CURDATE()'];
 $params = [];
 $types = '';
@@ -17,6 +19,16 @@ if ($query !== '') {
     $term = '%' . $query . '%';
     $params = [$term, $term, $term];
     $types = 'sss';
+}
+if ($location !== '') {
+    $where[] = 'Venue LIKE ?';
+    $params[] = '%' . $location . '%';
+    $types .= 's';
+}
+if ($maxPrice !== false && $maxPrice !== null) {
+    $where[] = 'Budget <= ?';
+    $params[] = (float) $maxPrice;
+    $types .= 'd';
 }
 if (preg_match('/^\d{4}-\d{2}-\d{2}$/', $from)) {
     $where[] = 'Date_OF_Booking >= ?';
@@ -29,7 +41,7 @@ if (preg_match('/^\d{4}-\d{2}-\d{2}$/', $to)) {
     $types .= 's';
 }
 
-$stmt = $conn->prepare('SELECT EventID, Name, Date_OF_Booking, Time, Venue, Contact_info FROM Event WHERE ' . implode(' AND ', $where) . ' ORDER BY Date_OF_Booking, Time');
+$stmt = $conn->prepare('SELECT EventID, Name, Date_OF_Booking, Time, Venue, Contact_info, Image_Path FROM Event WHERE ' . implode(' AND ', $where) . ' ORDER BY Date_OF_Booking, Time');
 if ($params) {
     $stmt->bind_param($types, ...$params);
 }
@@ -64,7 +76,7 @@ require __DIR__ . '/../includes/header.php';
         <?php while ($event = $events->fetch_assoc()): ?>
             <div class="col-md-6 col-lg-4"><article class="card event-card event-card h-100">
                 <div class="event-image">
-                    <img src="https://images.unsplash.com/photo-1492684223066-81342ee5ff30?auto=format&fit=crop&w=900&q=80" alt="<?= htmlspecialchars($event['Name'], ENT_QUOTES, 'UTF-8') ?> event" onerror="this.style.display='none'">
+                    <img src="<?= e($event['Image_Path'] ? eventspace_url($event['Image_Path']) : 'https://images.unsplash.com/photo-1492684223066-81342ee5ff30?auto=format&fit=crop&w=900&q=80') ?>" alt="<?= htmlspecialchars($event['Name'], ENT_QUOTES, 'UTF-8') ?> event" onerror="this.style.display='none'">
                 </div>
                 <div class="event-copy d-flex flex-column h-100">
                     <p class="text-muted mb-2 small"><?= htmlspecialchars($event['Date_OF_Booking'] . ' · ' . $event['Time'], ENT_QUOTES, 'UTF-8') ?></p>

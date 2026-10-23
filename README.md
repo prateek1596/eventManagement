@@ -42,6 +42,11 @@ The event form includes an AI brief extractor. Add `AI_API_KEY` and
 `AI_API_URL` in `.env` to enable it; without a key, the form remains usable and
 shows a clear setup message.
 
+The catalog also supports natural-language search, such as “music events in
+Goa under ₹3,000 next month.” The AI parser extracts the keyword, location,
+date range, and budget limit before applying safe parameterized filters. If no
+AI key is configured, the search keeps a basic local keyword fallback.
+
 Event photos can be uploaded from the create/edit event forms. Run the upgrade
 script before using this feature so the `Event.Image_Path` column exists.
 Images are validated as JPG, PNG, or WebP files up to 5 MB and stored in
