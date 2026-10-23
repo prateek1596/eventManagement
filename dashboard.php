@@ -79,15 +79,15 @@ if ($revenueResult) {
 
 require __DIR__ . '/includes/header.php';
 ?>
-<section class="dashboard-header d-flex flex-wrap justify-content-between align-items-end gap-3 mb-5">
+<section class="dashboard-hero app-card mb-4">
     <div>
-        <p class="app-eyebrow">Operations overview</p>
-        <h1 class="mb-2">Good to see you, <?= e($username) ?>.</h1>
-        <p class="app-muted mb-0">Here is what is happening across your event workspace.</p>
+        <p class="app-eyebrow">Friday, your event command centre</p>
+        <h1 class="display-5 mb-2">Make every gathering<br><em>feel effortless.</em></h1>
+        <p class="app-muted mb-0">Welcome back, <?= e($username) ?>. Here is the pulse of your workspace.</p>
     </div>
-    <div class="d-flex gap-2">
+    <div class="dashboard-hero-actions d-flex flex-wrap gap-2">
         <a class="btn btn-light border" href="<?= e(eventspace_url('pages/addVenue.php')) ?>"><i class="bi bi-building-add me-1"></i>Add venue</a>
-        <a class="btn app-btn-primary" href="<?= e(eventspace_url('pages/addEvent.php')) ?>"><i class="bi bi-plus-lg me-1"></i>New event</a>
+        <a class="btn app-btn-primary" href="<?= e(eventspace_url('pages/addEvent.php')) ?>"><i class="bi bi-plus-lg me-1"></i>Create an event</a>
     </div>
 </section>
 
@@ -99,11 +99,11 @@ require __DIR__ . '/includes/header.php';
         ['Total attendees', $dashboardCounts['attendees'], 'people', 'pages/attendee.php', 'Guest records'],
         ['Revenue', '₹' . number_format($revenue, 0), 'graph-up-arrow', 'pages/analytics.php', 'Paid ticket revenue'],
     ];
-    foreach ($kpis as [$label, $value, $icon, $href, $caption]):
+    foreach ($kpis as $index => [$label, $value, $icon, $href, $caption]):
     ?>
     <div class="col-6 col-xl-3">
         <a class="text-decoration-none" href="<?= e(eventspace_url($href)) ?>">
-            <article class="app-card app-card-hover h-100">
+            <article class="app-card app-card-hover h-100 metric-card metric-card-<?= $index ?>">
                 <div class="d-flex justify-content-between align-items-start">
                     <span class="kpi-icon"><i class="bi bi-<?= e($icon) ?>"></i></span>
                     <span class="kpi-trend"><i class="bi bi-arrow-up-right"></i></span>
@@ -121,7 +121,7 @@ require __DIR__ . '/includes/header.php';
     <div class="col-xl-8">
         <article class="app-card h-100">
             <div class="d-flex justify-content-between align-items-center mb-3">
-                <div><p class="app-eyebrow mb-1">Momentum</p><h2 class="h4 mb-0">Bookings over time</h2></div>
+                <div><p class="app-eyebrow mb-1">Your momentum</p><h2 class="h4 mb-0">Bookings over time</h2></div>
                 <span class="chart-caption">Last 6 months</span>
             </div>
             <div class="chart-container"><canvas id="bookingsChart" aria-label="Bookings over the last six months" role="img"></canvas></div>
@@ -130,7 +130,7 @@ require __DIR__ . '/includes/header.php';
     <div class="col-xl-4">
         <article class="app-card h-100">
             <div class="d-flex justify-content-between align-items-center mb-3">
-                <div><p class="app-eyebrow mb-1">Portfolio</p><h2 class="h4 mb-0">Events by category</h2></div>
+                <div><p class="app-eyebrow mb-1">Your mix</p><h2 class="h4 mb-0">Events by category</h2></div>
             </div>
             <div class="chart-container chart-container-doughnut"><canvas id="categoryChart" aria-label="Events by category" role="img"></canvas></div>
             <p class="chart-empty app-muted small text-center mb-0" hidden>Category data will appear as events are categorized.</p>
