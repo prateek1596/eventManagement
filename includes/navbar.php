@@ -1,0 +1,53 @@
+<?php
+$user = current_user();
+$navItems = [
+    ['dashboard.php', 'grid-1x2', 'Dashboard'],
+    ['pages/events.php', 'calendar-event', 'Events'],
+    ['pages/venue.php', 'building', 'Venues'],
+    ['pages/attendee.php', 'people', 'Attendees'],
+    ['pages/organiser.php', 'person-badge', 'Organisers'],
+    ['pages/catalog.php', 'compass', 'Discover'],
+];
+?>
+<div class="sidebar-backdrop" data-sidebar-backdrop></div>
+<aside class="app-sidebar" data-sidebar aria-label="Primary navigation">
+    <div class="sidebar-brand">
+        <a href="<?= e(eventspace_url('dashboard.php')) ?>"><span class="brand-mark">✦</span><span>EventSpace</span></a>
+        <button class="sidebar-close d-lg-none" type="button" data-sidebar-close aria-label="Close navigation"><i class="bi bi-x-lg"></i></button>
+    </div>
+    <p class="sidebar-label">Workspace</p>
+    <nav class="sidebar-nav">
+        <?php foreach ($navItems as [$path, $icon, $label]): ?>
+            <a class="sidebar-link <?= is_active_path($path) ? 'active' : '' ?>" href="<?= e(eventspace_url($path)) ?>">
+                <i class="bi bi-<?= e($icon) ?>" aria-hidden="true"></i><span><?= e($label) ?></span>
+            </a>
+        <?php endforeach; ?>
+    </nav>
+    <div class="sidebar-bottom">
+        <a class="sidebar-link" href="<?= e(eventspace_url('pages/notifications.php')) ?>"><i class="bi bi-bell" aria-hidden="true"></i><span>Notifications</span></a>
+        <a class="sidebar-link" href="<?= e(eventspace_url('profile.php')) ?>"><i class="bi bi-gear" aria-hidden="true"></i><span>Settings</span></a>
+        <a class="sidebar-link sidebar-logout" href="<?= e(eventspace_url('logout.php')) ?>"><i class="bi bi-box-arrow-right" aria-hidden="true"></i><span>Sign out</span></a>
+    </div>
+</aside>
+<header class="app-topbar">
+    <button class="sidebar-toggle d-lg-none" type="button" data-sidebar-open aria-label="Open navigation"><i class="bi bi-list"></i></button>
+    <form class="topbar-search" method="GET" action="<?= e(eventspace_url('search.php')) ?>" role="search">
+        <i class="bi bi-search" aria-hidden="true"></i>
+        <input name="query" type="search" placeholder="Search events, venues, people..." aria-label="Global search">
+        <kbd>⌘ K</kbd>
+    </form>
+    <div class="topbar-actions">
+        <button class="icon-button" type="button" data-theme-toggle aria-label="Toggle dark mode"><i class="bi bi-moon-stars"></i></button>
+        <a class="icon-button notification-button" href="<?= e(eventspace_url('pages/notifications.php')) ?>" aria-label="View notifications"><i class="bi bi-bell"></i><span class="notification-dot"></span></a>
+        <div class="dropdown">
+            <button class="user-menu dropdown-toggle" data-bs-toggle="dropdown" type="button">
+                <span class="user-avatar"><?= e(strtoupper(substr($user['username'] ?? 'U', 0, 1))) ?></span>
+                <span class="d-none d-sm-block text-start"><strong><?= e($user['username'] ?? 'Guest') ?></strong><small><?= e($user['role'] ?? 'Member') ?></small></span>
+            </button>
+            <ul class="dropdown-menu dropdown-menu-end">
+                <li><a class="dropdown-item" href="<?= e(eventspace_url('profile.php')) ?>"><i class="bi bi-person me-2"></i>Profile</a></li>
+                <li><a class="dropdown-item" href="<?= e(eventspace_url('logout.php')) ?>"><i class="bi bi-box-arrow-right me-2"></i>Sign out</a></li>
+            </ul>
+        </div>
+    </div>
+</header>

@@ -1,0 +1,10 @@
+.app-card { padding: var(--space-5); background: var(--app-surface); border: 1px solid var(--app-border); border-radius: 18px; box-shadow: var(--app-shadow-sm); }
+.app-card-hover { transition: transform .2s ease, box-shadow .2s ease, border-color .2s ease; }
+.app-card-hover:hover { border-color: color-mix(in srgb, var(--app-accent) 42%, var(--app-border)); box-shadow: var(--app-shadow); transform: translateY(-3px); }
+.app-eyebrow { margin-bottom: .4rem; color: var(--app-accent); font-size: .7rem; font-weight: 800; letter-spacing: .14em; text-transform: uppercase; }
+.app-btn-primary { color: #fff; background: var(--app-accent); border: 0; border-radius: 10px; font-weight: 700; }
+.app-btn-primary:hover { color: #fff; background: var(--app-accent-strong); }
+.app-muted { color: var(--app-muted); }
+.app-empty { padding: var(--space-7); color: var(--app-muted); text-align: center; background: var(--app-surface-muted); border: 1px dashed var(--app-border); border-radius: 16px; }
+.skeleton-loader { min-height: 1rem; background: linear-gradient(90deg, var(--app-surface-muted) 25%, var(--app-border) 37%, var(--app-surface-muted) 63%); background-size: 400% 100%; animation: app-shimmer 1.4s ease infinite; border-radius: 8px; }
+@keyframes app-shimmer { 0% { background-position: 100% 0; } 100% { background-position: -100% 0; } }
