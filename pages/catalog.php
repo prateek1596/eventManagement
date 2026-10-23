@@ -120,6 +120,7 @@ $events = $stmt->get_result();
     <form class="input-group"><label class="visually-hidden" for="chat-question">Ask a question</label><input id="chat-question" class="form-control" placeholder="Ask about your booking"><button class="btn btn-primary" type="submit">Send</button></form>
 </aside>
 <script src="../assets/theme.js"></script>
+<script src="../assets/js/ai.js"></script>
 <script src="../components/ai-planner.js"></script>
 <script src="../components/ai-chat.js"></script>
 <script src="../components/natural-search.js"></script>
