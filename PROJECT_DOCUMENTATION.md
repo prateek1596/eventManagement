@@ -428,6 +428,43 @@ Event
   +--> Reviews / Feedback
   +--> Seating tables
   +--> Public page
+
+## Roles and feedback
+
+Login now requires the user to select the role stored on the account:
+
+- **Organizer**: creates and manages events, tickets, venues, and reporting.
+- **Staff**: supports operations such as check-in and event coordination.
+- **Attendee**: discovers events and submits post-event feedback.
+
+The authenticated feedback page is [`pages/feedback.php`](C:/Users/prate/OneDrive/Desktop/eventManagement/pages/feedback.php).
+It stores ratings and comments in `event_feedback` and assigns a transparent
+Positive, Neutral, Negative, or Mixed sentiment using the rating plus a
+local keyword classifier. This keeps the feature usable without sending guest
+comments to an external AI provider. The `database/modules.sql` migration must
+be applied before using it.
+
+## Suggested AI/ML roadmap
+
+1. **Feedback topic extraction**: group comments into themes such as venue,
+   catering, registration, speakers, and accessibility, then show theme trends
+   beside sentiment.
+2. **Attendance forecasting**: predict registrations and no-shows from event
+   type, date, venue, ticket price, lead time, and historical RSVP behavior.
+3. **Personalized event recommendations**: recommend events to attendees from
+   their interests, RSVP history, location, and capacity availability.
+4. **No-show risk scoring**: identify likely no-shows so staff can send
+   reminders or release waitlisted seats without exposing personal scores.
+5. **Schedule and venue optimization**: suggest time slots and venues using
+   demand, capacity, travel distance, cost, and historical satisfaction.
+6. **AI event copilot**: turn a natural-language brief into an event plan,
+   timeline, task list, budget draft, and vendor checklist with human approval.
+7. **Anomaly detection**: flag unusual ticket sales, duplicate RSVPs, refund
+   spikes, or check-in patterns for staff review.
+
+For production, keep human approval for operational decisions, redact
+personally identifiable information before model calls, log model confidence,
+and provide an explanation or override for every recommendation.
   +--> Sponsors
   +--> Speakers and sessions
   +--> Risks
