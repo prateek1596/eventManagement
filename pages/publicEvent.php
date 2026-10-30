@@ -86,9 +86,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $event) {
         <div class="alert alert-danger">This event link is not valid.</div>
     <?php else: ?>
         <section class="event-gallery mb-4" aria-label="Event gallery">
-            <img src="<?= e($event['Image_Path'] ? eventspace_url($event['Image_Path']) : 'https://images.unsplash.com/photo-1505236858219-8359eb29e329?auto=format&fit=crop&w=1200&q=85') ?>" alt="<?= htmlspecialchars($event['Name'], ENT_QUOTES, 'UTF-8') ?> atmosphere" onerror="this.style.display='none'">
-            <img src="https://images.unsplash.com/photo-1492684223066-81342ee5ff30?auto=format&fit=crop&w=800&q=80" alt="Guests enjoying an event" onerror="this.style.display='none'">
-            <img src="https://images.unsplash.com/photo-1511795409834-ef04bbd61622?auto=format&fit=crop&w=800&q=80" alt="Event table and decor" onerror="this.style.display='none'">
+            <img loading="eager" src="<?= e($event['Image_Path'] ? eventspace_url($event['Image_Path']) : 'https://images.unsplash.com/photo-1505236858219-8359eb29e329?auto=format&fit=crop&w=1200&q=85') ?>" alt="<?= htmlspecialchars($event['Name'], ENT_QUOTES, 'UTF-8') ?> atmosphere" onerror="this.remove()">
+            <img loading="lazy" src="https://images.unsplash.com/photo-1492684223066-81342ee5ff30?auto=format&fit=crop&w=800&q=80" alt="Guests enjoying an event" onerror="this.remove()">
+            <img loading="lazy" src="https://images.unsplash.com/photo-1511795409834-ef04bbd61622?auto=format&fit=crop&w=800&q=80" alt="Event table and decor" onerror="this.remove()">
         </section>
         <p class="text-uppercase text-muted mb-2" style="letter-spacing:.14em;font-size:.72rem;font-weight:800">Event invitation</p>
         <h1><?= htmlspecialchars($event['Name'], ENT_QUOTES, 'UTF-8') ?></h1>
