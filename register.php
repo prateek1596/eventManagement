@@ -15,7 +15,7 @@ if (request_is_post()) {
     $name = trim((string) ($_POST['name'] ?? ''));
     $phone = trim((string) ($_POST['phone'] ?? ''));
     $role = $_POST['role'] ?? 'Staff';
-    $allowedRoles = ['Organizer', 'Staff'];
+    $allowedRoles = ['Organizer', 'Attendee', 'Staff'];
 
     if (!in_array($role, $allowedRoles, true)) {
         $error_message = 'Choose a valid account role.';
@@ -79,7 +79,7 @@ if (request_is_post()) {
         <div class="mb-3"><label class="form-label" for="username">Username</label><input type="text" class="form-control" id="username" name="username" pattern="[A-Za-z0-9_]{3,50}" maxlength="50" autocomplete="username" required></div>
         <div class="mb-3"><label class="form-label" for="email">Email address</label><input type="email" class="form-control" id="email" name="email" maxlength="150" autocomplete="email" required></div>
         <div class="mb-3"><label class="form-label" for="phone">Phone number</label><input type="tel" class="form-control" id="phone" name="phone" pattern="[0-9]{10}" maxlength="10" required></div>
-        <div class="mb-3"><label class="form-label" for="role">Role</label><select class="form-select" id="role" name="role" required><option value="">Choose a role</option><option value="Organizer">Organizer</option><option value="Staff">Staff</option></select></div>
+        <div class="mb-3"><label class="form-label" for="role">Role</label><select class="form-select" id="role" name="role" required><option value="">Choose a role</option><option value="Organizer">Organizer</option><option value="Attendee">Attendee</option><option value="Staff">Staff</option></select></div>
         <div class="mb-3"><label class="form-label" for="password">Password</label><input type="password" class="form-control" id="password" name="password" minlength="8" autocomplete="new-password" required></div>
         <button type="submit" class="btn btn-primary w-100">Create account</button>
         <p class="text-muted small mt-4 mb-0">Already have an account? <a class="auth-link" href="login.php">Back to sign in</a></p>

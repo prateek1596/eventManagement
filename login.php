@@ -14,10 +14,12 @@ if (request_is_post()) {
     verify_csrf_token();
     $username = trim($_POST['username'] ?? '');
     $password = $_POST['password'] ?? '';
+    $role = strtolower(trim((string) ($_POST['role'] ?? '')));
+    $allowedRoles = ['organizer', 'attendee', 'staff'];
 
-    $stmt = $conn->prepare('SELECT username, password, role FROM users WHERE username = ? LIMIT 1');
-    if ($stmt && $username !== '' && is_string($password)) {
-        $stmt->bind_param('s', $username);
+    $stmt = $conn->prepare('SELECT username, password, role FROM users WHERE username = ? AND LOWER(role) = ? LIMIT 1');
+    if ($stmt && $username !== '' && is_string($password) && in_array($role, $allowedRoles, true)) {
+        $stmt->bind_param('ss', $username, $role);
         $stmt->execute();
         $result = $stmt->get_result();
 
@@ -62,6 +64,7 @@ if (request_is_post()) {
                 <form method="POST">
                     <input type="hidden" name="csrf_token" value="<?= htmlspecialchars(csrfToken(), ENT_QUOTES, 'UTF-8') ?>">
                     <div class="mb-3"><label class="form-label" for="username">Username</label><input class="form-control" type="text" id="username" name="username" placeholder="Your username" autocomplete="username" required></div>
+                    <div class="mb-3"><label class="form-label" for="role">Sign in as</label><select class="form-select" id="role" name="role" required><option value="">Choose your role</option><option value="organizer">Organizer</option><option value="attendee">Attendee</option><option value="staff">Staff</option></select></div>
                     <div class="mb-4"><label class="form-label" for="password">Password</label><input class="form-control" type="password" id="password" name="password" placeholder="Your password" autocomplete="current-password" required></div>
                     <button type="submit" class="btn btn-primary w-100">Sign in <span aria-hidden="true">→</span></button>
                     <p class="text-muted small mt-4 mb-0">New to EventSpace? <a class="auth-link" href="register.php">Create an account</a></p>

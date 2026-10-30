@@ -1,13 +1,21 @@
 <?php
 $user = current_user();
+$role = strtolower((string) ($user['role'] ?? ''));
 $navItems = [
     ['dashboard.php', 'grid-1x2', 'Dashboard'],
-    ['pages/events.php', 'calendar-event', 'Events'],
-    ['pages/venue.php', 'building', 'Venues'],
-    ['pages/attendee.php', 'people', 'Attendees'],
-    ['pages/organiser.php', 'person-badge', 'Organisers'],
     ['pages/catalog.php', 'compass', 'Discover'],
+    ['pages/feedback.php', 'chat-heart', 'Feedback'],
 ];
+if ($role !== 'attendee') {
+    $navItems = array_merge($navItems, [
+        ['pages/events.php', 'calendar-event', 'Events'],
+        ['pages/venue.php', 'building', 'Venues'],
+        ['pages/attendee.php', 'people', 'Attendees'],
+    ]);
+}
+if ($role === 'organizer' || $role === 'staff') {
+    $navItems[] = ['pages/organiser.php', 'person-badge', 'Organisers'];
+}
 ?>
 <div class="sidebar-backdrop" data-sidebar-backdrop></div>
 <aside class="app-sidebar" data-sidebar aria-label="Primary navigation">

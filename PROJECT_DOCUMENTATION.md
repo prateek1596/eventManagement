@@ -582,4 +582,3 @@ EventSpace combines event operations and AI assistance in one system. It
 reduces manual data entry, gives organizers operational visibility, improves
 attendee workflows, and provides a foundation that can grow into a complete
 event-management platform.
-
