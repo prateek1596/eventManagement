@@ -5,6 +5,7 @@ $navItems = [
     ['dashboard.php', 'grid-1x2', 'Dashboard'],
     ['pages/catalog.php', 'compass', 'Discover'],
     ['pages/feedback.php', 'chat-heart', 'Feedback'],
+    ['pages/ai-insights.php', 'stars', 'AI insights'],
 ];
 if ($role !== 'attendee') {
     $navItems = array_merge($navItems, [

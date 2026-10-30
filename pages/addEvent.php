@@ -162,6 +162,7 @@ require __DIR__ . '/../includes/header.php';
         </form>
     </section>
 </section>
+<script src="../assets/js/ai.js"></script>
 <script src="../components/ai-description.js"></script>
 <script src="../components/ai-event-extractor.js"></script>
 <?php require __DIR__ . '/../includes/footer.php'; ?>

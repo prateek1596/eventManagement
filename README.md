@@ -47,6 +47,12 @@ Goa under ₹3,000 next month.” The AI parser extracts the keyword, location,
 date range, and budget limit before applying safe parameterized filters. If no
 AI key is configured, the search keeps a basic local keyword fallback.
 
+The **AI insights** page provides local attendance signals, capacity-based event
+recommendations, and feedback sentiment summaries. The catalog assistant uses
+the configured OpenAI-compatible endpoint when available and falls back to a
+local help response when it is not. These features require the upgrade tables
+for RSVPs and feedback; no guest comments are sent to the external provider.
+
 Event photos can be uploaded from the create/edit event forms. Run the upgrade
 script before using this feature so the `Event.Image_Path` column exists.
 Images are validated as JPG, PNG, or WebP files up to 5 MB and stored in

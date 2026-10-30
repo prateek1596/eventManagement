@@ -4,7 +4,7 @@
             try {
                 const response = await fetch((window.EVENTSPACE_BASE_URL || "/eventManagement") + "/api/ai/" + endpoint, {
                     method: "POST",
-                    headers: { "Content-Type": "application/json" },
+                    headers: { "Content-Type": "application/json", "Accept": "application/json" },
                     body: JSON.stringify(payload || {})
                 });
                 if (!response.ok) throw new Error("AI request failed");

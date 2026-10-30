@@ -11,6 +11,12 @@
         const question = input.value.trim();
         log.insertAdjacentHTML("beforeend", '<div class="text-end mb-2"><span class="badge bg-primary">' + question.replace(/[<>&"]/g, "") + "</span></div>");
         input.value = "";
-        setTimeout(function () { log.insertAdjacentHTML("beforeend", '<p class="small mb-2">I can help with event details, tickets, venues, and booking steps.</p>'); }, 250);
+        const request = window.EventSpaceAI
+            ? window.EventSpaceAI.request("assistant.php", { message: question }, null)
+            : Promise.resolve(null);
+        request.then(function (data) {
+            const answer = data && data.answer ? data.answer : "I can help with event details, tickets, venues, and booking steps.";
+            log.insertAdjacentHTML("beforeend", '<p class="small mb-2">' + answer.replace(/[<>&"]/g, "") + "</p>");
+        });
     });
 }());

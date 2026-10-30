@@ -124,6 +124,7 @@ require __DIR__ . '/../includes/header.php';
     <div data-chat-log class="small mb-2"><p class="text-muted">Hi! What can I help you plan?</p></div>
     <form class="input-group"><label class="visually-hidden" for="chat-question">Ask a question</label><input id="chat-question" class="form-control" placeholder="Ask about your booking"><button class="btn btn-primary" type="submit">Send</button></form>
 </aside>
+<script src="<?= e(eventspace_url('assets/js/ai.js')) ?>"></script>
 <script src="<?= e(eventspace_url('components/ai-planner.js')) ?>"></script>
 <script src="<?= e(eventspace_url('components/ai-chat.js')) ?>"></script>
 <script src="<?= e(eventspace_url('components/natural-search.js')) ?>"></script>
