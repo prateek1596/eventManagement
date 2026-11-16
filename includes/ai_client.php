@@ -21,6 +21,7 @@ function eventspace_ai_completion(array $messages, float $temperature = 0.2): ?s
     curl_setopt_array($curl, [
         CURLOPT_POST => true,
         CURLOPT_RETURNTRANSFER => true,
+        CURLOPT_CONNECTTIMEOUT => 3,
         CURLOPT_TIMEOUT => 12,
         CURLOPT_HTTPHEADER => [
             'Content-Type: application/json',
@@ -39,6 +40,17 @@ function eventspace_ai_completion(array $messages, float $temperature = 0.2): ?s
     }
 
     $decoded = json_decode($response, true);
+    if (!is_array($decoded)) {
+        error_log('AI completion response was not valid JSON.');
+        return null;
+    }
+
     $content = $decoded['choices'][0]['message']['content'] ?? null;
-    return is_string($content) ? trim($content) : null;
+    if (is_array($content)) {
+        $content = implode('', array_map(
+            static fn ($part): string => is_array($part) ? (string) ($part['text'] ?? '') : '',
+            $content
+        ));
+    }
+    return is_string($content) && trim($content) !== '' ? trim($content) : null;
 }

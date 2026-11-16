@@ -84,7 +84,7 @@ $pageTitle = 'Feedback';
 require dirname(__DIR__) . '/includes/header.php';
 ?>
 <section class="page-heading-row mb-4">
-    <div><p class="app-eyebrow">Listen and learn</p><h1 class="h2 mb-1">Event feedback</h1><p class="app-muted mb-0">Share what worked and help make the next experience better.</p></div>
+    <div><p class="app-eyebrow">Listen and learn</p><h1 class="h2 mb-1">Event feedback</h1><p class="app-muted mb-0">Share what worked and help make the next experience better. Sentiment is classified automatically from the rating and comment.</p></div>
 </section>
 <?php if ($message): ?><div class="alert alert-success"><?= e($message) ?></div><?php endif; ?>
 <?php if ($error): ?><div class="alert alert-danger"><?= e($error) ?></div><?php endif; ?>

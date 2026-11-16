@@ -23,6 +23,7 @@ $includeAi = $includeAi ?? false;
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
     <link href="<?= e(eventspace_url('assets/css/theme.css')) ?>" rel="stylesheet">
     <link href="<?= e(eventspace_url('assets/css/components.css')) ?>" rel="stylesheet">
+    <script>window.EVENTSPACE_BASE_URL = <?= json_encode(EVENTSPACE_BASE_URL, JSON_UNESCAPED_SLASHES) ?>;</script>
 </head>
 <body class="app-body">
 <?php require __DIR__ . '/navbar.php'; ?>

@@ -112,19 +112,19 @@ require __DIR__ . '/../includes/header.php';
         </div>
         <div class="col-lg-5">
             <div class="card p-4">
+                <p class="text-uppercase text-muted mb-1" style="letter-spacing:.13em;font-size:.72rem;font-weight:800">EventSpace assistant</p>
                 <h2 class="h4">A little help, whenever you need it.</h2>
-                <p class="text-muted mb-0">Ask about events, tickets, venues, or booking steps.</p>
+                <p class="text-muted">Ask about events, tickets, venues, booking steps, or feedback.</p>
+                <button type="button" data-ai-chat-toggle class="btn btn-primary align-self-start" aria-label="Open AI event assistant" aria-expanded="false">✦ Ask EventSpace AI</button>
+                <aside data-ai-chat class="card p-3 mt-3" hidden aria-label="AI event assistant">
+                    <div class="d-flex justify-content-between align-items-center mb-2"><h2 class="h5 mb-0">EventSpace AI</h2><span class="badge bg-success">Online</span></div>
+                    <div data-chat-log class="small mb-2"><p class="text-muted">Hi! What can I help you plan?</p></div>
+                    <form class="input-group"><label class="visually-hidden" for="chat-question">Ask a question</label><input id="chat-question" class="form-control" placeholder="Ask about your booking"><button class="btn btn-primary" type="submit">Send</button></form>
+                </aside>
             </div>
         </div>
     </section>
 
-<button type="button" data-ai-chat-toggle class="btn btn-primary position-fixed shadow-lg" style="right:20px;bottom:20px;border-radius:999px;z-index:5" aria-label="Open AI event assistant">✦ Ask EventSpace AI</button>
-<aside data-ai-chat class="card position-fixed p-3" style="right:20px;bottom:78px;width:min(360px,calc(100vw - 40px));z-index:6" hidden aria-label="AI event assistant">
-    <div class="d-flex justify-content-between align-items-center mb-2"><h2 class="h5 mb-0">EventSpace AI</h2><span class="badge bg-success">Online</span></div>
-    <div data-chat-log class="small mb-2"><p class="text-muted">Hi! What can I help you plan?</p></div>
-    <form class="input-group"><label class="visually-hidden" for="chat-question">Ask a question</label><input id="chat-question" class="form-control" placeholder="Ask about your booking"><button class="btn btn-primary" type="submit">Send</button></form>
-</aside>
-<script src="<?= e(eventspace_url('assets/js/ai.js')) ?>"></script>
 <script src="<?= e(eventspace_url('components/ai-planner.js')) ?>"></script>
 <script src="<?= e(eventspace_url('components/ai-chat.js')) ?>"></script>
 <script src="<?= e(eventspace_url('components/natural-search.js')) ?>"></script>
