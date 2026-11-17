@@ -40,4 +40,49 @@
     document.addEventListener("click", function (event) {
         if (notificationPopover && !notificationPopover.hidden && !notificationPopover.contains(event.target) && event.target !== notificationButton) setNotifications(false);
     });
+
+    const checkinModal = document.querySelector("[data-checkin-modal]");
+    const checkinForm = checkinModal?.querySelector("[data-checkin-form]");
+    const checkinToken = checkinModal?.querySelector("[data-checkin-token]");
+    const checkinResult = checkinModal?.querySelector("[data-checkin-result]");
+    const checkinSubmit = checkinModal?.querySelector("[data-checkin-submit]");
+    const showCheckinResult = function (message, guest, success) {
+        if (!checkinResult) return;
+        checkinResult.hidden = false;
+        checkinResult.className = "checkin-result mt-3 alert " + (success ? "alert-success" : "alert-danger");
+        checkinResult.textContent = success && guest
+            ? guest.name + " · " + guest.event + "\n" + message
+            : message;
+    };
+    checkinForm?.addEventListener("submit", async function (event) {
+        event.preventDefault();
+        if (!checkinSubmit || !checkinToken) return;
+        checkinSubmit.disabled = true;
+        checkinSubmit.innerHTML = '<span class="spinner-border spinner-border-sm me-1" aria-hidden="true"></span>Checking in...';
+        try {
+            const response = await fetch(checkinForm.action, {
+                method: "POST",
+                headers: { "X-Requested-With": "XMLHttpRequest", "Accept": "application/json" },
+                body: new FormData(checkinForm)
+            });
+            const result = await response.json();
+            showCheckinResult(result.message || "The guest could not be checked in.", result.guest, result.success === true);
+            if (result.success) checkinToken.value = "";
+        } catch (error) {
+            showCheckinResult("Unable to reach the check-in service. Please try again.", null, false);
+        } finally {
+            checkinSubmit.disabled = false;
+            checkinSubmit.innerHTML = '<i class="bi bi-person-check me-1"></i>Check in guest';
+        }
+    });
+    checkinModal?.addEventListener("shown.bs.modal", function () {
+        checkinToken?.focus();
+    });
+    checkinModal?.addEventListener("hidden.bs.modal", function () {
+        checkinForm?.reset();
+        if (checkinResult) {
+            checkinResult.hidden = true;
+            checkinResult.textContent = "";
+        }
+    });
 })();

@@ -82,7 +82,7 @@ require __DIR__ . '/../includes/header.php';
                     <p class="text-muted mb-2 small"><?= htmlspecialchars($event['Date_OF_Booking'] . ' · ' . $event['Time'], ENT_QUOTES, 'UTF-8') ?></p>
                     <h3 class="h5"><?= htmlspecialchars($event['Name'], ENT_QUOTES, 'UTF-8') ?></h3>
                     <p class="mb-3"><?= htmlspecialchars($event['Venue'], ENT_QUOTES, 'UTF-8') ?></p>
-                    <a class="btn btn-primary mt-auto" href="publicEvent.php?event=<?= (int) $event['EventID'] ?>">Register / RSVP</a>
+                    <button type="button" class="btn btn-primary mt-auto" data-rsvp-url="publicEvent.php?event=<?= (int) $event['EventID'] ?>" data-bs-toggle="modal" data-bs-target="#rsvpModal">Register / RSVP</button>
                 </div>
             </article></div>
         <?php endwhile; ?>
@@ -125,6 +125,17 @@ require __DIR__ . '/../includes/header.php';
         </div>
     </section>
 
+    <div class="modal fade" id="rsvpModal" tabindex="-1" aria-labelledby="rsvpModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-lg"><div class="modal-content overflow-hidden">
+            <div class="modal-header"><h2 class="modal-title h5" id="rsvpModalLabel">Register for this event</h2><button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button></div>
+            <div class="modal-body p-0"><iframe id="rsvpFrame" title="Event RSVP form" style="display:block;width:100%;height:620px;border:0"></iframe></div>
+        </div></div>
+    </div>
+    <script>
+    document.querySelectorAll("[data-rsvp-url]").forEach(function (button) {
+        button.addEventListener("click", function () { document.getElementById("rsvpFrame").src = button.dataset.rsvpUrl; });
+    });
+    </script>
 <script src="<?= e(eventspace_url('components/ai-planner.js')) ?>"></script>
 <script src="<?= e(eventspace_url('components/ai-chat.js')) ?>"></script>
 <script src="<?= e(eventspace_url('components/natural-search.js')) ?>"></script>

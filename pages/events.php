@@ -102,7 +102,7 @@ require __DIR__ . '/../includes/header.php';
         <a class="btn <?= $view === 'table' ? 'app-btn-primary' : 'btn-light border' ?>" href="?<?= http_build_query($queryParams + ['view' => 'table']) ?>"><i class="bi bi-list me-1"></i>Table</a>
         <a class="btn <?= $view === 'calendar' ? 'app-btn-primary' : 'btn-light border' ?>" href="?<?= http_build_query($queryParams + ['view' => 'calendar']) ?>"><i class="bi bi-calendar3 me-1"></i>Calendar</a>
     </div>
-    <div class="d-flex gap-2"><a href="exportEvents.php?search=<?= urlencode($search) ?>" class="btn btn-light border"><i class="bi bi-download me-1"></i>Export</a><a href="checkin.php" class="btn btn-light border">Guest check-in</a></div>
+    <div class="d-flex gap-2"><a href="exportEvents.php?search=<?= urlencode($search) ?>" class="btn btn-light border"><i class="bi bi-download me-1"></i>Export</a><button type="button" class="btn btn-light border" data-bs-toggle="modal" data-bs-target="#guestCheckinModal"><i class="bi bi-person-check me-1"></i>Guest check-in</button></div>
 </div>
 
 <?php if ($view === 'calendar'): ?>
@@ -122,4 +122,31 @@ require __DIR__ . '/../includes/header.php';
 <?php endif; ?>
 
 <?php if ($view !== 'calendar' && $totalPages > 1): ?><nav class="mt-4" aria-label="Event pages"><ul class="pagination"><?php for ($pageNumber = 1; $pageNumber <= $totalPages; $pageNumber++): ?><li class="page-item <?= $pageNumber === $page ? 'active' : '' ?>"><a class="page-link" href="?<?= http_build_query($queryParams + ['view' => $view, 'page' => $pageNumber]) ?>"><?= $pageNumber ?></a></li><?php endfor; ?></ul></nav><?php endif; ?>
+
+<div class="modal fade" id="guestCheckinModal" tabindex="-1" aria-labelledby="guestCheckinModalLabel" aria-hidden="true" data-checkin-modal>
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content app-modal">
+            <div class="modal-header">
+                <div>
+                    <p class="app-eyebrow mb-1">Guest access</p>
+                    <h2 class="modal-title h4 mb-0" id="guestCheckinModalLabel">Check in a guest</h2>
+                </div>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form method="POST" action="<?= e(eventspace_url('pages/checkin.php')) ?>" data-checkin-form>
+                <div class="modal-body">
+                    <p class="app-muted small mb-3">Enter the RSVP code from the guest's confirmation. Their RSVP must be pending or confirmed.</p>
+                    <label class="form-label small app-muted" for="guest-checkin-token">RSVP check-in code</label>
+                    <input id="guest-checkin-token" class="form-control form-control-lg" name="token" autocomplete="off" placeholder="Paste or scan the guest code" required data-checkin-token>
+                    <div class="checkin-result mt-3" role="status" aria-live="polite" hidden data-checkin-result></div>
+                    <input type="hidden" name="csrf_token" value="<?= e($csrf) ?>">
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-light border" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn app-btn-primary" data-checkin-submit><i class="bi bi-person-check me-1"></i>Check in guest</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
 <?php require __DIR__ . '/../includes/footer.php'; ?>
