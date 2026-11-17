@@ -46,6 +46,37 @@
     const checkinToken = checkinModal?.querySelector("[data-checkin-token]");
     const checkinResult = checkinModal?.querySelector("[data-checkin-result]");
     const checkinSubmit = checkinModal?.querySelector("[data-checkin-submit]");
+    const checkinBackdrop = document.createElement("div");
+    checkinBackdrop.className = "modal-backdrop fade";
+    const setCheckinModal = function (open) {
+        if (!checkinModal) return;
+        checkinModal.style.display = open ? "block" : "none";
+        checkinModal.classList.toggle("show", open);
+        checkinModal.setAttribute("aria-hidden", open ? "false" : "true");
+        document.body.classList.toggle("modal-open", open);
+        if (open) {
+            checkinBackdrop.classList.add("show");
+            document.body.appendChild(checkinBackdrop);
+            window.setTimeout(function () { checkinToken?.focus(); }, 50);
+        } else if (checkinBackdrop.parentNode) {
+            checkinBackdrop.remove();
+        }
+        if (!open) {
+            checkinForm?.reset();
+            if (checkinResult) {
+                checkinResult.hidden = true;
+                checkinResult.textContent = "";
+            }
+        }
+    };
+    document.querySelector("[data-checkin-open]")?.addEventListener("click", function () { setCheckinModal(true); });
+    checkinModal?.querySelectorAll("[data-checkin-close]").forEach(function (button) {
+        button.addEventListener("click", function () { setCheckinModal(false); });
+    });
+    document.addEventListener("keydown", function (event) {
+        if (event.key === "Escape" && checkinModal?.classList.contains("show")) setCheckinModal(false);
+    });
+    checkinBackdrop.addEventListener("click", function () { setCheckinModal(false); });
     const showCheckinResult = function (message, guest, success) {
         if (!checkinResult) return;
         checkinResult.hidden = false;
@@ -73,16 +104,6 @@
         } finally {
             checkinSubmit.disabled = false;
             checkinSubmit.innerHTML = '<i class="bi bi-person-check me-1"></i>Check in guest';
-        }
-    });
-    checkinModal?.addEventListener("shown.bs.modal", function () {
-        checkinToken?.focus();
-    });
-    checkinModal?.addEventListener("hidden.bs.modal", function () {
-        checkinForm?.reset();
-        if (checkinResult) {
-            checkinResult.hidden = true;
-            checkinResult.textContent = "";
         }
     });
 })();

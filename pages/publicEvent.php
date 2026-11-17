@@ -8,7 +8,7 @@ $error = '';
 $tickets = [];
 
 if ($eventID) {
-    $eventStmt = $conn->prepare('SELECT EventID, Name, Date_OF_Booking, Time, Venue, Contact_info, Capacity, Recurrence_Rule, Recurrence_End_Date, Image_Path FROM Event WHERE EventID = ?');
+    $eventStmt = $conn->prepare('SELECT EventID, Name, Date_OF_Booking, Time, Venue, Contact_info, Capacity, Recurrence_Rule, Recurrence_End_Date FROM Event WHERE EventID = ?');
     $eventStmt->bind_param('i', $eventID);
     $eventStmt->execute();
     $event = $eventStmt->get_result()->fetch_assoc();

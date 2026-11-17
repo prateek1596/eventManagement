@@ -102,7 +102,7 @@ require __DIR__ . '/../includes/header.php';
         <a class="btn <?= $view === 'table' ? 'app-btn-primary' : 'btn-light border' ?>" href="?<?= http_build_query($queryParams + ['view' => 'table']) ?>"><i class="bi bi-list me-1"></i>Table</a>
         <a class="btn <?= $view === 'calendar' ? 'app-btn-primary' : 'btn-light border' ?>" href="?<?= http_build_query($queryParams + ['view' => 'calendar']) ?>"><i class="bi bi-calendar3 me-1"></i>Calendar</a>
     </div>
-    <div class="d-flex gap-2"><a href="exportEvents.php?search=<?= urlencode($search) ?>" class="btn btn-light border"><i class="bi bi-download me-1"></i>Export</a><button type="button" class="btn btn-light border" data-bs-toggle="modal" data-bs-target="#guestCheckinModal"><i class="bi bi-person-check me-1"></i>Guest check-in</button></div>
+    <div class="d-flex gap-2"><a href="exportEvents.php?search=<?= urlencode($search) ?>" class="btn btn-light border"><i class="bi bi-download me-1"></i>Export</a><button type="button" class="btn btn-light border" data-checkin-open><i class="bi bi-person-check me-1"></i>Guest check-in</button></div>
 </div>
 
 <?php if ($view === 'calendar'): ?>
@@ -131,7 +131,7 @@ require __DIR__ . '/../includes/header.php';
                     <p class="app-eyebrow mb-1">Guest access</p>
                     <h2 class="modal-title h4 mb-0" id="guestCheckinModalLabel">Check in a guest</h2>
                 </div>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                <button type="button" class="btn-close" data-checkin-close aria-label="Close"></button>
             </div>
             <form method="POST" action="<?= e(eventspace_url('pages/checkin.php')) ?>" data-checkin-form>
                 <div class="modal-body">
@@ -142,7 +142,7 @@ require __DIR__ . '/../includes/header.php';
                     <input type="hidden" name="csrf_token" value="<?= e($csrf) ?>">
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-light border" data-bs-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn btn-light border" data-checkin-close>Cancel</button>
                     <button type="submit" class="btn app-btn-primary" data-checkin-submit><i class="bi bi-person-check me-1"></i>Check in guest</button>
                 </div>
             </form>
